@@ -1,0 +1,12 @@
+expr   			::= term { { "+" | "-" } term }*       
+term   			::= factor { { "*" | "/" | "%" } factor }*
+factor 			::= ident | number | "+" factor | "-" factor | "(" expr ")"
+ident  			::= [_a-zA-Z] [_a-zA-Z0-9]*
+statement   ::= expression ";" | assignment | conditional | loop | block
+assignment  ::= ident "=" expression ";"
+conditional ::= "if" "(" expression ")" block [ "else" block | "else" conditional ]
+loop        ::= "while" "(" expression ")" block
+block       ::= { statement* }
+
+
+

@@ -24,8 +24,13 @@ class ExprParser(val input: ParserInput) extends Parser {
     )
   }
 
-  /** factor ::= number | "+" factor | "-" factor | "(" expr ")" */
-  def Factor: Rule1[Expr] = rule { Number | UnaryPlus | UnaryMinus | Parens }
+  /** factor ::= ident | number | "+" factor | "-" factor | "(" expr ")" */
+  def Factor: Rule1[Expr] = rule { Ident | Number | UnaryPlus | UnaryMinus | Parens }
+
+  // rules to deal with variable names [a-zA-Z] [a-zA-Z0-9]*
+  def Variable = rule { oneOrMore(CharPredicate.Alpha) ~ zeroOrMore(CharPredicate.AlphaNum) }
+
+  def Ident = rule { capture(Variable) ~ WhiteSpace ~> ((s:String) => Identifier(s)) }
 
   // explicitly handle trailing whitespace
   def Number = rule { capture(Digits) ~ WhiteSpace ~> ((s: String) => Constant(s.toInt)) }

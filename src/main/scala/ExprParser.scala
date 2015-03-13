@@ -27,6 +27,14 @@ class ExprParser(val input: ParserInput) extends Parser {
   /** factor ::= ident | number | "+" factor | "-" factor | "(" expr ")" */
   def Factor: Rule1[Expr] = rule { Ident | Number | UnaryPlus | UnaryMinus | Parens }
 
+  /** statement   ::= expression ";" | assignment | conditional | loop | block **/
+
+
+  /** assignment  ::= ident "=" expression ";" **/
+  def Assign = rule {
+    Ident ~ ws('=') ~ Expression ~ ws(';') ~> ((x,y) => Assignment(x: Expr, y))
+  }
+
   // rules to deal with variable names [a-zA-Z] [a-zA-Z0-9]*
   def Variable = rule { oneOrMore(CharPredicate.Alpha) ~ zeroOrMore(CharPredicate.AlphaNum) }
 

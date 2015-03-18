@@ -5,7 +5,8 @@ import ast._
 
 class Parser(val input: ParserInput) extends org.parboiled2.Parser {
 
-  def InputLine = rule { WhiteSpace ~ zeroOrMore(Statement) ~ EOI }
+  def InputLine = rule { WhiteSpace ~
+      Block ~ EOI | WhiteSpace ~ zeroOrMore(Statement) ~ EOI ~> ((e: Seq[Expr]) => ast.Block(e:_*)) }
 
   /** expr ::= term { { "+" | "-" } term }* */
   def Expression = rule {
@@ -28,12 +29,10 @@ class Parser(val input: ParserInput) extends org.parboiled2.Parser {
   def Factor: Rule1[Expr] = rule { Ident | Number | UnaryPlus | UnaryMinus | Parens }
 
   /** statement ::= expr ";" | assignment | conditional | loop | block **/
-  def Statement: Rule1[Expr] = rule { Expression ~ ws(';') | Assign | Conditional | Loop | Block }
+  def Statement = rule { Expression ~ ws(';') | Assign | Conditional | Loop | Block }
 
   /** assignment  ::= ident "=" expr ";" **/
-  def Assign = rule {
-    Ident ~ ws('=') ~ Expression ~ ws(';') ~> ((x,y) => Assignment(x: Expr, y))
-  }
+  def Assign = rule { Ident ~ ws('=') ~ Expression ~ ws(';') ~> ((x,y) => Assignment(x: Expr, y)) }
 
   /** block ::= { statement* } */
   def Block: Rule1[Expr] = rule { ws('{') ~ zeroOrMore(Statement) ~ ws('}') ~> ((e: Seq[Expr]) => ast.Block(e:_*)) }

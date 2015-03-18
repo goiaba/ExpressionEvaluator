@@ -18,6 +18,7 @@ object behaviors {
     case Assignment(l,r) => -1
     case Conditional(condExpr, ifBlock, elseBlock) => -1
     case Loop(condExpr, block) => -1
+    case Block(exprs @ _*) => -1
   }
 
   def size(e: Expr): Int = e match {
@@ -32,6 +33,7 @@ object behaviors {
     case Assignment(l,r) => -1
     case Conditional(condExpr, ifBlock, elseBlock) => -1
     case Loop(condExpr, block) => -1
+    case Block(exprs @ _*) => -1
   }
 
   def depth(e: Expr): Int = e match {
@@ -46,6 +48,7 @@ object behaviors {
     case Assignment(l,r) => -1
     case Conditional(condExpr, ifBlock, elseBlock) => -1
     case Loop(condExpr, block) => -1
+    case Block(exprs @ _*) => -1
   }
 
   def toFormattedString(prefix: String)(e: Expr): String = e match {
@@ -58,9 +61,9 @@ object behaviors {
     case Mod(l, r)   => buildExprString(prefix, "Mod", toFormattedString(prefix + INDENT)(l), toFormattedString(prefix + INDENT)(r))
     case Identifier(s) => prefix + s
     case Assignment(l,r) => buildExprString(prefix, "Assignment", toFormattedString(prefix + INDENT)(l), toFormattedString(prefix + INDENT)(r))
-    case Block(exprs @ _*) => buildBlockString(prefix, "Block", exprs:_*)
     case Conditional(condExpr, ifBlock, elseBlocks @ _*) => buildConditionalString(prefix, "Conditional", condExpr, ifBlock, elseBlocks:_*)
     case Loop(condExpr, block) => buildExprString(prefix, "Loop",toFormattedString(prefix + INDENT)(condExpr), toFormattedString(prefix + INDENT)(block))
+    case Block(exprs @ _*) => buildBlockString(prefix, "Block", exprs:_*)
   }
 
   def toFormattedString(e: Expr): String = toFormattedString("")(e)
@@ -68,9 +71,6 @@ object behaviors {
   def toFormattedString(es: Seq[Expr]): String = {
     val result = new StringBuilder("")
     buildStringIfExists("", es.toIterator, result)
-//    es.foreach((e: Expr) => {
-//      result.append(toFormattedString("")(e))
-//    })
     result.toString
   }
 

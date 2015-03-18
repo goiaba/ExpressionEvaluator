@@ -1,14 +1,12 @@
 package edu.luc.cs.laufer.cs473.expressions
 
-import scala.collection.immutable.List
-
 object TestFixtures {
 
   import ast._
 
   val singleAssignmentString = "x = 5;"
   val singleAssignment =
-    List(
+    Block(
       Assignment(
         Identifier("x"),
         Constant(5)
@@ -17,7 +15,7 @@ object TestFixtures {
 
   val complexAssignmentString = "x = ((1 + y2) - (3 * y4)) / 5;"
   val complexAssignment =
-    List(
+    Block(
       Assignment(
         Identifier("x"),
         Div(
@@ -38,7 +36,7 @@ object TestFixtures {
 
   val assignmentWithIfString = "if (1) { x = 2;  }"
   val assignmentWithIf =
-    List(
+    Block(
       Conditional(
         Constant(1),
         Block(
@@ -52,7 +50,7 @@ object TestFixtures {
 
   val assignmentWithIfElseString = "if (1) { x = 2;  } else { x = 3; }"
   val assignmentWithIfElse =
-    List(
+    Block(
       Conditional(
         Constant(1),
         Block(
@@ -72,7 +70,7 @@ object TestFixtures {
 
   val ifWithMultipleElseString = "if (1) { x = 1;  } else if (2) { x = 2; } else if(3){x=3;} else { x = 4; }"
   val ifWithMultipleElse =
-    List(
+    Block(
       Conditional(
         Constant(1),
         Block(
@@ -110,28 +108,26 @@ object TestFixtures {
 
   val assignmentWithinBlockString = "{ r = r + x; y = y + 1 ; }"
   val assignmentWithinBlock =
-    List(
-      Block(
-        Assignment(
+    Block(
+      Assignment(
+        Identifier("r"),
+        Plus(
           Identifier("r"),
-          Plus(
-            Identifier("r"),
-            Identifier("x")
-          )
-        ),
-        Assignment(
+          Identifier("x")
+        )
+      ),
+      Assignment(
+        Identifier("y"),
+        Plus(
           Identifier("y"),
-          Plus(
-            Identifier("y"),
-            Constant(1)
-          )
+          Constant(1)
         )
       )
     )
 
   val ifWithDoubleAssignmentString = "if (4) { r = r + x; y = y + 1; }"
   val ifWithDoubleAssignment =
-    List(
+    Block(
       Conditional(
         Constant(4),
         Block(
@@ -156,7 +152,7 @@ object TestFixtures {
   val whileLoop1String1 = "while (y) {\n      r = r + x;\n      y = y - 1;\n    }"
   val whileLoop1String2 = "while (y) {\n      r = r + x\n    ; y = y - 1 ;\n    }"
   val whileLoop1 =
-    List(
+    Block(
       Loop(
         Identifier("y"),
         Block(
@@ -181,7 +177,7 @@ object TestFixtures {
   val complex1string = "((1 + 2) - (3 * 4)) / 5;"
   val complex1string2 = "  ((1 + 2) - (3 * 4)) / 5;  "
   val complex1 =
-    List(
+    Block(
       Div(
         Minus(
           Plus(
@@ -199,7 +195,7 @@ object TestFixtures {
 
   val complex2string = "((1 + 2) - (-3 * 4)) % 5;"
   val complex2 =
-    List(
+    Block(
       Mod(
         Minus(
           Plus(

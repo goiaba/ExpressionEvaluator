@@ -12,6 +12,8 @@ object behaviors {
     case Times(l, r) => evaluate(l) * evaluate(r)
     case Div(l, r)   => evaluate(l) / evaluate(r)
     case Mod(l, r)   => evaluate(l) % evaluate(r)
+    case Identifier(s) => -1
+    case Assignment(l,r) => -1
   }
 
   def size(e: Expr): Int = e match {
@@ -22,6 +24,8 @@ object behaviors {
     case Times(l, r) => 1 + size(l) + size(r)
     case Div(l, r)   => 1 + size(l) + size(r)
     case Mod(l, r)   => 1 + size(l) + size(r)
+    case Identifier(s) => -1
+    case Assignment(l,r) => -1
   }
 
   def depth(e: Expr): Int = e match {
@@ -32,6 +36,8 @@ object behaviors {
     case Times(l, r) => 1 + math.max(depth(l), depth(r))
     case Div(l, r)   => 1 + math.max(depth(l), depth(r))
     case Mod(l, r)   => 1 + math.max(depth(l), depth(r))
+    case Identifier(s) => -1
+    case Assignment(l,r) => -1
   }
 
   def toFormattedString(prefix: String)(e: Expr): String = e match {
@@ -43,9 +49,28 @@ object behaviors {
     case Div(l, r)   => buildExprString(prefix, "Div", toFormattedString(prefix + INDENT)(l), toFormattedString(prefix + INDENT)(r))
     case Mod(l, r)   => buildExprString(prefix, "Mod", toFormattedString(prefix + INDENT)(l), toFormattedString(prefix + INDENT)(r))
     case Identifier(s) => prefix + s
+    case Assignment(l,r) => buildExprString(prefix, "Assignment", toFormattedString(prefix + INDENT)(l), toFormattedString(prefix + INDENT)(r))
+    case Block(exprs @ _*) => buildBlockString(prefix, "Block", exprs:_*)
   }
 
   def toFormattedString(e: Expr): String = toFormattedString("")(e)
+
+  def buildBlockString(prefix: String, nodeString: String, exprs: Expr*) = {
+    val result = new StringBuilder(prefix)
+    result.append(nodeString)
+    result.append("(")
+    result.append(EOL)
+    val exprsIterator = exprs.toIterator
+    while (exprsIterator.hasNext) {
+      val expr = exprsIterator.next();
+      result.append(toFormattedString(prefix + INDENT)(expr));
+      if (exprsIterator.hasNext)
+        result.append(",").append(EOL)
+    }
+    result.append(EOL)
+    result.append(")")
+    result.toString
+  }
 
   def buildExprString(prefix: String, nodeString: String, leftString: String, rightString: String) = {
     val result = new StringBuilder(prefix)

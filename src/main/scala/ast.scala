@@ -12,3 +12,4 @@ case class Mod(left: Expr, right: Expr) extends Expr
 
 case class Identifier(variable: String) extends Expr
 case class Assignment(left:Expr, right: Expr) extends Expr
+case class Block(exprs: Expr*) extends Expr

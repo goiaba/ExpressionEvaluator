@@ -3,9 +3,9 @@ package edu.luc.cs.laufer.cs473.expressions
 import org.parboiled2._
 import ast._
 
-class ExprParser(val input: ParserInput) extends Parser {
+class Parser(val input: ParserInput) extends org.parboiled2.Parser {
 
-  def InputLine = rule { WhiteSpace ~ Statement ~ EOI }
+  def InputLine = rule { WhiteSpace ~ zeroOrMore(Statement) ~ EOI }
 
   /** expr ::= term { { "+" | "-" } term }* */
   def Expression = rule {
@@ -27,20 +27,25 @@ class ExprParser(val input: ParserInput) extends Parser {
   /** factor ::= ident | number | "+" factor | "-" factor | "(" expr ")" */
   def Factor: Rule1[Expr] = rule { Ident | Number | UnaryPlus | UnaryMinus | Parens }
 
-  /** statement   ::= expression ";" | assignment | conditional | loop | block **/
-  def Statement: Rule1[Expr] = rule { Expression ~ ws(';') | Assign | Block }
+  /** statement ::= expr ";" | assignment | conditional | loop | block **/
+  def Statement: Rule1[Expr] = rule { Expression ~ ws(';') | Assign | Conditional | Loop | Block }
 
-  /** assignment  ::= ident "=" expression ";" **/
+  /** assignment  ::= ident "=" expr ";" **/
   def Assign = rule {
     Ident ~ ws('=') ~ Expression ~ ws(';') ~> ((x,y) => Assignment(x: Expr, y))
   }
 
-  /** conditional ::= "if" "(" expression ")" block [ "else" (block | conditional) ] */
-//  def Conditional = rule {
-//    ws(atomic("if")) ~ Parens ~ Block ~ optional(ws(atomic("else")) ~ (Block | Conditional))) ~>
-//
-//  }
+  /** block ::= { statement* } */
+  def Block: Rule1[Expr] = rule { ws('{') ~ zeroOrMore(Statement) ~ ws('}') ~> ((e: Seq[Expr]) => ast.Block(e:_*)) }
 
+  /** conditional ::= "if" "(" expr ")" block [ "else" (block | conditional) ] */
+  def Conditional: Rule1[Expr] = rule {
+    ws("if") ~ Parens ~ Block ~ zeroOrMore(ws("else") ~ (Block | Conditional)) ~>
+      ((a: Expr, b: Expr, c: Seq[Expr]) => ast.Conditional(a, b, c:_*))
+  }
+
+  /** loop ::= "while" "(" expr ")" block */
+  def Loop = rule { ws("while") ~ Parens ~ Block ~> (ast.Loop(_: Expr, _)) }
 
   // rules to deal with variable names [a-zA-Z] [a-zA-Z0-9]*
   def Variable = rule { oneOrMore(CharPredicate.Alpha) ~ zeroOrMore(CharPredicate.AlphaNum) }
@@ -56,9 +61,6 @@ class ExprParser(val input: ParserInput) extends Parser {
 
   def Parens = rule { ws('(') ~ Expression ~ ws(')') }
 
-  /** block       ::= { statement* } */
-  def Block: Rule1[Expr] = rule { ws('{') ~ zeroOrMore(Statement) ~ ws('}') ~> ((e: Seq[Expr]) => ast.Block(e:_*)) }
-
   def Digits = rule { oneOrMore(CharPredicate.Digit) }
 
   val WhiteSpaceChar = CharPredicate(" \n\r\t\f")
@@ -66,4 +68,6 @@ class ExprParser(val input: ParserInput) extends Parser {
   def WhiteSpace = rule { zeroOrMore(WhiteSpaceChar) }
 
   def ws(c: Char) = rule { c ~ WhiteSpace }
+
+  def ws(s: String) = rule { s ~ WhiteSpace }
 }

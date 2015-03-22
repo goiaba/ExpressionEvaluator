@@ -7,33 +7,33 @@ import scala.collection.Iterator
 object behaviors {
 
   def evaluate(e: Expr): Int = e match {
-    case Constant(c) => c
-    case UMinus(r)   => -evaluate(r)
-    case Plus(l, r)  => evaluate(l) + evaluate(r)
-    case Minus(l, r) => evaluate(l) - evaluate(r)
-    case Times(l, r) => evaluate(l) * evaluate(r)
-    case Div(l, r)   => evaluate(l) / evaluate(r)
-    case Mod(l, r)   => evaluate(l) % evaluate(r)
-    case Identifier(s) => -1
-    case Assignment(l,r) => -1
-    case Conditional(condExpr, ifBlock, elseBlock) => -1
-    case Loop(condExpr, block) => -1
-    case Block(exprs @ _*) => -1
+    case Constant(c)                                => c
+    case UMinus(r)                                  => -evaluate(r)
+    case Plus(l, r)                                 => evaluate(l) + evaluate(r)
+    case Minus(l, r)                                => evaluate(l) - evaluate(r)
+    case Times(l, r)                                => evaluate(l) * evaluate(r)
+    case Div(l, r)                                  => evaluate(l) / evaluate(r)
+    case Mod(l, r)                                  => evaluate(l) % evaluate(r)
+    case Identifier(s)                              => -1
+    case Assignment(l,r)                            => -1
+    case Conditional(condExpr, ifBlock, elseBlock)  => -1
+    case Loop(condExpr, block)                      => -1
+    case Block(exprs @ _*)                          => -1
   }
 
   def size(e: Expr): Int = e match {
-    case Constant(c) => 1
-    case UMinus(r)   => 1 + size(r)
-    case Plus(l, r)  => 1 + size(l) + size(r)
-    case Minus(l, r) => 1 + size(l) + size(r)
-    case Times(l, r) => 1 + size(l) + size(r)
-    case Div(l, r)   => 1 + size(l) + size(r)
-    case Mod(l, r)   => 1 + size(l) + size(r)
-    case Identifier(s) => -1
-    case Assignment(l,r) => -1
-    case Conditional(condExpr, ifBlock, elseBlock) => -1
-    case Loop(condExpr, block) => -1
-    case Block(exprs @ _*) => -1
+    case Constant(c)                                => 1
+    case UMinus(r)                                  => 1 + size(r)
+    case Plus(l, r)                                 => 1 + size(l) + size(r)
+    case Minus(l, r)                                => 1 + size(l) + size(r)
+    case Times(l, r)                                => 1 + size(l) + size(r)
+    case Div(l, r)                                  => 1 + size(l) + size(r)
+    case Mod(l, r)                                  => 1 + size(l) + size(r)
+    case Identifier(s)                              => -1
+    case Assignment(l,r)                            => -1
+    case Conditional(condExpr, ifBlock, elseBlock)  => -1
+    case Loop(condExpr, block)                      => -1
+    case Block(exprs @ _*)                          => -1
   }
 
   def depth(e: Expr): Int = e match {
@@ -44,11 +44,13 @@ object behaviors {
     case Times(l, r) => 1 + math.max(depth(l), depth(r))
     case Div(l, r)   => 1 + math.max(depth(l), depth(r))
     case Mod(l, r)   => 1 + math.max(depth(l), depth(r))
-    case Identifier(s) => -1
-    case Assignment(l,r) => -1
-    case Conditional(condExpr, ifBlock, elseBlock) => -1
-    case Loop(condExpr, block) => -1
-    case Block(exprs @ _*) => -1
+    case Identifier(s) => 1
+    case Assignment(l,r) => 1 + math.max(depth(l), depth(r))
+    case Conditional(condExpr, ifBlock, elseBlock @ _*) =>
+      1 + math.max(depth(ifBlock), util.Try(elseBlock.map((expr: Expr) => depth(expr)).max).getOrElse(0))
+    case Loop(condExpr, block) => 1 + depth(block)
+    case Block(exprs @ _*) =>
+      1 + util.Try(exprs.map((expr: Expr) => depth(expr)).max).getOrElse(0)
   }
 
   def toFormattedString(prefix: String)(e: Expr): String = e match {
@@ -62,7 +64,7 @@ object behaviors {
     case Identifier(s) => prefix + s
     case Assignment(l,r) => buildExprString(prefix, "Assignment", toFormattedString(prefix + INDENT)(l), toFormattedString(prefix + INDENT)(r))
     case Conditional(condExpr, ifBlock, elseBlocks @ _*) => buildConditionalString(prefix, "Conditional", condExpr, ifBlock, elseBlocks:_*)
-    case Loop(condExpr, block) => buildExprString(prefix, "Loop",toFormattedString(prefix + INDENT)(condExpr), toFormattedString(prefix + INDENT)(block))
+    case Loop(condExpr, block) => buildExprString(prefix, "Loop", toFormattedString(prefix + INDENT)(condExpr), toFormattedString(prefix + INDENT)(block))
     case Block(exprs @ _*) => buildBlockString(prefix, "Block", exprs:_*)
   }
 

@@ -5,8 +5,9 @@ import ast._
 
 class Parser(val input: ParserInput) extends org.parboiled2.Parser {
 
-  def InputLine = rule { WhiteSpace ~
-      Block ~ EOI | WhiteSpace ~ zeroOrMore(Statement) ~ EOI ~> ((e: Seq[Expr]) => ast.Block(e:_*)) }
+  def InputLine = rule {
+    WhiteSpace ~ Block ~ EOI |
+      WhiteSpace ~ zeroOrMore(Statement) ~ EOI ~> ((e: Seq[Expr]) => ast.Block(e:_*)) }
 
   /** expr ::= term { { "+" | "-" } term }* */
   def Expression = rule {

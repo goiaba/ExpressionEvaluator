@@ -18,6 +18,7 @@ object Calculator extends App {
         import behaviors._
         println("The parsed expression is: ")
         println(toFormattedString(statements))
+        println("It has depth " + depth(statements))
         //println("It has size " + size(expr) + " and depth " + depth(expr))
         //println("It evaluates to " + evaluate(expr))
     }

@@ -76,6 +76,54 @@ object behaviors {
     result.toString
   }
 
+  def unparse(e: Expr): String = toUnparsedString("")(e)
+
+  def toUnparsedString(prefix: String)(e: Expr): String = e match {
+    case Identifier(s) => prefix + s
+    case Constant(c) => prefix + c
+    case Assignment(l,r) => buildUnparsedBinaryExpr(prefix, "=", l, r)
+    case UMinus(r) => buildUnparsedUnaryExpr(prefix, "-", r)
+    case Plus(l,r) => buildUnparsedBinaryExpr(prefix, "+", l, r)
+    case Minus(l,r) => buildUnparsedBinaryExpr(prefix, "-", l, r)
+    case Times(l,r) => buildUnparsedBinaryExpr(prefix, "*", l, r)
+    case Div(l,r) => buildUnparsedBinaryExpr(prefix, "/", l, r)
+    case Mod(l,r) => buildUnparsedBinaryExpr(prefix, "%", l, r)
+
+    case Block(exprs @ _*) => buildUnparsedBlock(exprs:_*)
+    case _ => prefix
+  }
+
+  def buildUnparsedUnaryExpr(prefix: String, operator: String, l: Expr): String = {
+    val a = new StringBuilder()
+    a.append(prefix)
+    a.append(operator)
+    a.append(toUnparsedString("")(l))
+    a.toString
+  }
+
+  def buildUnparsedBinaryExpr(prefix: String, operator: String, l: Expr, r: Expr): String = {
+    val a = new StringBuilder()
+    a.append(prefix)
+    a.append("(")
+    a.append(toUnparsedString("")(l))
+    a.append(operator)
+    a.append(toUnparsedString("")(r))
+    a.append(")")
+    a.toString
+  }
+
+  def buildUnparsedBlock(exprs: Expr*): String = {
+    val result = new StringBuilder
+    result.append("{")
+    for(expr <- exprs) {
+      result.append(EOL)
+      result.append(toUnparsedString(U_INDENT)(expr))
+    }
+    result.append(EOL)
+    result.append("}")
+    result.toString
+  }
+
   def buildConditionalString(prefix: String, nodeString: String, condExpr: Expr, ifBlock: Expr, elseBlocks: Expr*) = {
     val result = new StringBuilder(prefix)
     result.append(nodeString)
@@ -144,4 +192,5 @@ object behaviors {
 
   val EOL = scala.util.Properties.lineSeparator
   val INDENT = ".."
+  val U_INDENT = "   "
 }

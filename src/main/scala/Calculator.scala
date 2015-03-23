@@ -1,5 +1,9 @@
 package edu.luc.cs.laufer.cs473.expressions
 
+import java.io.PrintWriter
+
+import jline.TerminalFactory
+import jline.console.ConsoleReader
 import org.parboiled2.ParseError
 import scala.util.{Failure, Success}
 
@@ -18,19 +22,32 @@ object Calculator extends App {
         import behaviors._
         println("The parsed expression is: ")
         println(toFormattedString(statements))
-        println("It has depth " + depth(statements))
+
+        println("The unparsed expression is: ")
+        println(unparse(statements))
         //println("It has size " + size(expr) + " and depth " + depth(expr))
         //println("It evaluates to " + evaluate(expr))
     }
   }
 
+  val console = new ConsoleReader()
+  console.setPrompt("minic> ")
+  var line = ""
+  val out = new PrintWriter(console.getOutput)
+
   if (args.length > 0) {
     processStatements(args mkString " ")
   } else {
-    print("Enter infix expression: ")
-    scala.io.Source.stdin.getLines foreach { line =>
+    while ((line = console.readLine()) != null) {
       processStatements(line)
-      print("Enter infix expression: ")
+      //print("Enter infix expression: ")
     }
+    //print("Enter infix expression: ")
+    /*scala.io.Source.stdin.getLines foreach { line =>
+      processStatements(line )
+      print("Enter infix expression: ")
+    }*/
+    TerminalFactory.get().restore()
+
   }
 }

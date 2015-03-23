@@ -88,9 +88,27 @@ object behaviors {
     case Times(l,r) => buildUnparsedBinaryExpr(prefix, "*", l, r)
     case Div(l,r) => buildUnparsedBinaryExpr(prefix, "/", l, r)
     case Mod(l,r) => buildUnparsedBinaryExpr(prefix, "%", l, r)
-
+    case Conditional(condition, ifBlock, elseBlock @ _*) => buildUnparsedConditional(prefix, condition, ifBlock, elseBlock:_*)
     case Block(exprs @ _*) => buildUnparsedBlock(exprs:_*)
     case _ => prefix
+  }
+
+  def buildUnparsedConditional(prefix: String, condition: Expr, ifBlock: Expr, elseBlock: Expr*): String = {
+    val result = new StringBuilder
+    result.append(prefix)
+    result.append("(")
+    result.append(toUnparsedString("")(condition))
+    result.append(")")
+    result.append(EOL)
+    result.append(" {")
+    result.append(toUnparsedString(U_INDENT)(ifBlock))
+    result.append(EOL)
+    result.append("}")
+    for (expr <- elseBlock) {
+      result.append(toUnparsedString(U_INDENT)(expr))
+    }
+
+    result.toString
   }
 
   def buildUnparsedUnaryExpr(prefix: String, operator: String, l: Expr): String = {

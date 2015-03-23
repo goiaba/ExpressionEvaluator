@@ -118,6 +118,7 @@ object behaviors {
     for(expr <- exprs) {
       result.append(EOL)
       result.append(toUnparsedString(U_INDENT)(expr))
+      result.append(";")
     }
     result.append(EOL)
     result.append("}")
@@ -192,5 +193,5 @@ object behaviors {
 
   val EOL = scala.util.Properties.lineSeparator
   val INDENT = ".."
-  val U_INDENT = "   "
+  val U_INDENT = "  "
 }

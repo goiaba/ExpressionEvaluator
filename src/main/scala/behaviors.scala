@@ -89,23 +89,38 @@ object behaviors {
     case Div(l,r) => buildUnparsedBinaryExpr(prefix, "/", l, r)
     case Mod(l,r) => buildUnparsedBinaryExpr(prefix, "%", l, r)
     case Conditional(condition, ifBlock, elseBlock @ _*) => buildUnparsedConditional(prefix, condition, ifBlock, elseBlock:_*)
-    case Block(exprs @ _*) => buildUnparsedBlock(exprs:_*)
-    case _ => prefix
+    case Loop(condition, block) => buildUnparsedLoop(prefix, condition, block)
+    case Block(exprs @ _*) => buildUnparsedBlock(prefix, exprs:_*)
+    case _ => "{" + EOL + "}"
+  }
+
+  def buildUnparsedLoop(prefix: String, condition: Expr, block: Expr): String = {
+    val result = new StringBuilder
+    result.append(prefix)
+    result.append("while (")
+    result.append(toUnparsedString("")(condition))
+    result.append(") ")
+    result.append(toUnparsedString(prefix)(block))
+    result.toString()
   }
 
   def buildUnparsedConditional(prefix: String, condition: Expr, ifBlock: Expr, elseBlock: Expr*): String = {
     val result = new StringBuilder
     result.append(prefix)
+    result.append("if")
     result.append("(")
     result.append(toUnparsedString("")(condition))
-    result.append(")")
-    result.append(EOL)
-    result.append(" {")
-    result.append(toUnparsedString(U_INDENT)(ifBlock))
-    result.append(EOL)
-    result.append("}")
-    for (expr <- elseBlock) {
-      result.append(toUnparsedString(U_INDENT)(expr))
+    result.append(") ")
+    result.append(toUnparsedString(prefix)(ifBlock))
+    result.append(" else")
+    if (elseBlock.size > 0) { 
+      for (expr <- elseBlock) {
+        result.append(toUnparsedString(prefix)(expr))
+      }
+    } else {
+      result.append(" {")
+      result.append(EOL)
+      result.append(prefix + "}")
     }
 
     result.toString
@@ -130,15 +145,17 @@ object behaviors {
     a.toString
   }
 
-  def buildUnparsedBlock(exprs: Expr*): String = {
+  def buildUnparsedBlock(prefix: String, exprs: Expr*): String = {
     val result = new StringBuilder
+    result.append(prefix)
     result.append("{")
     for(expr <- exprs) {
       result.append(EOL)
-      result.append(toUnparsedString(U_INDENT)(expr))
+      result.append(toUnparsedString(prefix + U_INDENT)(expr))
       result.append(";")
     }
     result.append(EOL)
+    result.append(prefix)
     result.append("}")
     result.toString
   }

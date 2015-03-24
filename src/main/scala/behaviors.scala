@@ -113,7 +113,7 @@ object behaviors {
     result.append(") ")
     result.append(toUnparsedString(prefix)(ifBlock))
     result.append(" else")
-    if (elseBlock.size > 0) { 
+    if (elseBlock.size > 0) {
       for (expr <- elseBlock) {
         result.append(toUnparsedString(prefix)(expr))
       }

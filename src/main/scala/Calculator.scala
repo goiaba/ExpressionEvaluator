@@ -1,6 +1,6 @@
 package edu.luc.cs.laufer.cs473.expressions
 
-import java.io.PrintWriter
+import java.io.{BufferedInputStream, BufferedOutputStream, PrintWriter}
 
 import jline.TerminalFactory
 import jline.console.ConsoleReader
@@ -33,20 +33,13 @@ object Calculator extends App {
   val console = new ConsoleReader()
   console.setPrompt("minic> ")
   var line = ""
-  val out = new PrintWriter(console.getOutput)
 
   if (args.length > 0) {
     processStatements(args mkString " ")
   } else {
-    while ((line = console.readLine()) != null) {
+    while ((line = console.readLine()) != null){
       processStatements(line)
-      //print("Enter infix expression: ")
     }
-    //print("Enter infix expression: ")
-    /*scala.io.Source.stdin.getLines foreach { line =>
-      processStatements(line )
-      print("Enter infix expression: ")
-    }*/
     TerminalFactory.get().restore()
 
   }

@@ -5,7 +5,7 @@ import org.scalatest.FunSuite
 import edu.luc.cs.laufer.cs473.expressions.TestFixtures._
 
 object MainParser extends App {
-  val parsedExpr = new Parser(complex1string).InputLine.run()
+  val parsedExpr = new Parser(complex1String).InputLine.run()
   println(parsedExpr.get)
   println(complex1)
   println(parsedExpr.get == complex1)
@@ -13,9 +13,9 @@ object MainParser extends App {
 }
 
 class TestParser extends FunSuite {
-  test("parser works 1") { assert(new Parser(complex1string).InputLine.run().get === complex1) }
-  test("parser works 2") { assert(new Parser(complex1string2).InputLine.run().get === complex1) }
-  test("parser works 3") { assert(new Parser(complex2string).InputLine.run().get === complex2) }
+  test("parser works 1") { assert(new Parser(complex1String).InputLine.run().get === complex1) }
+  test("parser works 2") { assert(new Parser(complex1String2).InputLine.run().get === complex1) }
+  test("parser works 3") { assert(new Parser(complex2String).InputLine.run().get === complex2) }
 
   test("parser works on singleAssignment") { assert(new Parser(singleAssignmentString).InputLine.run().get === singleAssignment) }
   test("parser works on complexAssignment") { assert(new Parser(complexAssignmentString).InputLine.run().get === complexAssignment) }

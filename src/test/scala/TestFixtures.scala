@@ -105,6 +105,50 @@ object TestFixtures {
         )
       )
     )
+  val ifWithMultipleElseUnparsedString = "" +
+    ""
+
+  val trelloExampleString = "if(-3+4+5*6){while(0){x=3;y=5;{xy=88;}}}"
+  val trelloExample =
+    Block(
+      Conditional(
+        Plus(
+          Plus(
+            UMinus(
+              Constant(3)
+            ),
+            Constant(4)
+          ),
+          Times(
+            Constant(5),
+            Constant(6)
+          )
+        ),
+        Block(
+          Loop(
+            Constant(0),
+            Block(
+              Assignment(
+                Identifier("x"),
+                Constant(3)
+              ),
+              Assignment(
+                Identifier("y"),
+                Constant(5)
+              ),
+              Block(
+                Assignment(
+                  Identifier("xy"),
+                  Constant(88)
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  val trelloExampleUnparsedString =
+    "{\n  if (((-3 + 4) + (5 * 6))) {\n    while (0) {\n      x = 3;\n      y = 5;\n      {\n        xy = 88;\n      }\n    }\n  } else {\n  }\n}"
 
   val assignmentWithinBlockString = "{ r = r + x; y = y + 1 ; }"
   val assignmentWithinBlock =

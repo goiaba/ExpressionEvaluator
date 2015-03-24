@@ -33,4 +33,5 @@ class TestExtended extends FunSuite {
   test("depth(assignmentWithinBlock)") { assert(depth(assignmentWithinBlock) === 4) }
   test("depth(ifWithDoubleAssignment)") { assert(depth(ifWithDoubleAssignment) === 6) }
   test("depth(whileLoop1)") { assert(depth(whileLoop1) === 6) }
+  test("depth(trelloExample)") { assert(depth(trelloExample) === 8) }
 }

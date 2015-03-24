@@ -20,10 +20,10 @@ object Calculator extends App {
         println("This expression could not be evaluated: " + error)
       case Success(statements) =>
         import behaviors._
-        println("The parsed expression is: ")
+        println("\nThe parsed expression is: ")
         println(toFormattedString(statements))
 
-        println("The unparsed expression is: ")
+        println("\nThe unparsed expression is: ")
         println(unparse(statements))
         //println("It has size " + size(expr) + " and depth " + depth(expr))
         //println("It evaluates to " + evaluate(expr))
@@ -37,10 +37,15 @@ object Calculator extends App {
   if (args.length > 0) {
     processStatements(args mkString " ")
   } else {
-    while ((line = console.readLine()) != null){
-      processStatements(line)
+    println("Enter the expressions and leave an empty line to parse your input")
+    val input = new StringBuilder()
+    while (true) {
+      line = console.readLine()
+      input.append(line)
+      if (line ==  "") {
+        processStatements(input.toString())
+        input.setLength(0)
+      }
     }
-    TerminalFactory.get().restore()
-
   }
 }

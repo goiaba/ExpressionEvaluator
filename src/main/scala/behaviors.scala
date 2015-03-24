@@ -81,7 +81,7 @@ object behaviors {
   def toUnparsedString(prefix: String)(e: Expr): String = e match {
     case Identifier(s) => prefix + s
     case Constant(c) => prefix + c
-    case Assignment(l,r) => buildUnparsedBinaryExpr(prefix, "=", l, r)
+    case Assignment(l,r) => buildUnparsedBinaryExpr(prefix, "=", l, r, false)
     case UMinus(r) => buildUnparsedUnaryExpr(prefix, "-", r)
     case Plus(l,r) => buildUnparsedBinaryExpr(prefix, "+", l, r)
     case Minus(l,r) => buildUnparsedBinaryExpr(prefix, "-", l, r)
@@ -100,18 +100,18 @@ object behaviors {
     result.append("while (")
     result.append(toUnparsedString("")(condition))
     result.append(") ")
-    result.append(toUnparsedString(prefix)(block))
+    result.append(toUnparsedString(prefix)(block).replaceAll("^\\s+", ""))
     result.toString()
   }
 
   def buildUnparsedConditional(prefix: String, condition: Expr, ifBlock: Expr, elseBlock: Expr*): String = {
     val result = new StringBuilder
     result.append(prefix)
-    result.append("if")
+    result.append("if ")
     result.append("(")
     result.append(toUnparsedString("")(condition))
     result.append(") ")
-    result.append(toUnparsedString(prefix)(ifBlock))
+    result.append(toUnparsedString(prefix)(ifBlock).replaceAll("^\\s+", ""))
     result.append(" else")
     if (elseBlock.size > 0) {
       for (expr <- elseBlock) {
@@ -134,14 +134,16 @@ object behaviors {
     a.toString
   }
 
-  def buildUnparsedBinaryExpr(prefix: String, operator: String, l: Expr, r: Expr): String = {
+  def buildUnparsedBinaryExpr(prefix: String, operator: String, l: Expr, r: Expr, parens: Boolean = true): String = {
     val a = new StringBuilder()
     a.append(prefix)
-    a.append("(")
+    if (parens) a.append("(")
     a.append(toUnparsedString("")(l))
+    a.append(" ")
     a.append(operator)
+    a.append(" ")
     a.append(toUnparsedString("")(r))
-    a.append(")")
+    if (parens) a.append(")")
     a.toString
   }
 
@@ -154,6 +156,9 @@ object behaviors {
       result.append(toUnparsedString(prefix + U_INDENT)(expr))
       result.append(";")
     }
+    if (result.length() > 2 &&
+      '}'.equals(result.charAt(result.length()-2)))
+      result.deleteCharAt(result.length()-1)
     result.append(EOL)
     result.append(prefix)
     result.append("}")

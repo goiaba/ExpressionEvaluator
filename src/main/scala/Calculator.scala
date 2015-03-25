@@ -37,15 +37,15 @@ object Calculator extends App {
   if (args.length > 0) {
     processStatements(args mkString " ")
   } else {
-    println("Enter the expressions and leave an empty line to parse your input")
+    println("Enter the expressions and press <enter> to parse your input")
     val input = new StringBuilder()
-    while (true) {
-      line = console.readLine()
-      input.append(line)
-      if (line ==  "") {
-        processStatements(input.toString())
-        input.setLength(0)
-      }
+
+    Iterator continually {
+      console.readLine()
+    } takeWhile {
+      Option(_).isDefined
+    } foreach {
+      processStatements(_)
     }
   }
 }

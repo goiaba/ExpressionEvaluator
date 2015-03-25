@@ -55,17 +55,17 @@ object behaviors {
 
   def toFormattedString(prefix: String)(e: Expr): String = e match {
     case Constant(c) => prefix + c.toString
+    case Identifier(s) => prefix + s
     case UMinus(r)   => buildUnaryExprString(prefix, "UMinus", toFormattedString(prefix + INDENT)(r))
     case Plus(l, r)  => buildExprString(prefix, "Plus", toFormattedString(prefix + INDENT)(l), toFormattedString(prefix + INDENT)(r))
     case Minus(l, r) => buildExprString(prefix, "Minus", toFormattedString(prefix + INDENT)(l), toFormattedString(prefix + INDENT)(r))
     case Times(l, r) => buildExprString(prefix, "Times", toFormattedString(prefix + INDENT)(l), toFormattedString(prefix + INDENT)(r))
     case Div(l, r)   => buildExprString(prefix, "Div", toFormattedString(prefix + INDENT)(l), toFormattedString(prefix + INDENT)(r))
     case Mod(l, r)   => buildExprString(prefix, "Mod", toFormattedString(prefix + INDENT)(l), toFormattedString(prefix + INDENT)(r))
-    case Identifier(s) => prefix + s
     case Assignment(l,r) => buildExprString(prefix, "Assignment", toFormattedString(prefix + INDENT)(l), toFormattedString(prefix + INDENT)(r))
-    case Conditional(condExpr, ifBlock, elseBlocks @ _*) => buildConditionalString(prefix, "Conditional", condExpr, ifBlock, elseBlocks:_*)
     case Loop(condExpr, block) => buildExprString(prefix, "Loop", toFormattedString(prefix + INDENT)(condExpr), toFormattedString(prefix + INDENT)(block))
     case Block(exprs @ _*) => buildBlockString(prefix, "Block", exprs:_*)
+    case Conditional(condExpr, ifBlock, elseBlocks @ _*) => buildConditionalString(prefix, "Conditional", condExpr, ifBlock, elseBlocks:_*)
   }
 
   def toFormattedString(e: Expr): String = toFormattedString("")(e)
@@ -91,7 +91,6 @@ object behaviors {
     case Conditional(condition, ifBlock, elseBlock @ _*) => buildUnparsedConditional(prefix, condition, ifBlock, elseBlock:_*)
     case Loop(condition, block) => buildUnparsedLoop(prefix, condition, block)
     case Block(exprs @ _*) => buildUnparsedBlock(prefix, exprs:_*)
-    case _ => "{" + EOL + "}"
   }
 
   def buildUnparsedLoop(prefix: String, condition: Expr, block: Expr): String = {
@@ -112,17 +111,16 @@ object behaviors {
     result.append(toUnparsedString("")(condition))
     result.append(") ")
     result.append(toUnparsedString(prefix)(ifBlock).replaceAll("^\\s+", ""))
-    result.append(" else")
-    if (elseBlock.size > 0) {
-      for (expr <- elseBlock) {
-        result.append(toUnparsedString(prefix)(expr))
-      }
-    } else {
-      result.append(" {")
+    result.append(" else ")
+    if (!elseBlock.isEmpty)
+      elseBlock.foreach((e: Expr) =>
+        result.append(toUnparsedString(prefix)(e).replaceAll("^\\s+", ""))
+      )
+    else {
+      result.append("{")
       result.append(EOL)
       result.append(prefix + "}")
     }
-
     result.toString
   }
 
@@ -149,19 +147,17 @@ object behaviors {
 
   def buildUnparsedBlock(prefix: String, exprs: Expr*): String = {
     val result = new StringBuilder
-    result.append(prefix)
-    result.append("{")
-    for(expr <- exprs) {
+    result.append(prefix).append("{")
+    exprs.foreach((e: Expr) => {
       result.append(EOL)
-      result.append(toUnparsedString(prefix + U_INDENT)(expr))
-      result.append(";")
-    }
-    if (result.length() > 2 &&
-      '}'.equals(result.charAt(result.length()-2)))
-      result.deleteCharAt(result.length()-1)
+      result.append(toUnparsedString(prefix + U_INDENT)(e))
+      e match {
+        case Conditional(_,_,_*) | Loop(_,_) | Block(_*) =>
+        case _ => result.append(";")
+      }
+    })
     result.append(EOL)
-    result.append(prefix)
-    result.append("}")
+    result.append(prefix).append("}")
     result.toString
   }
 
@@ -190,8 +186,8 @@ object behaviors {
     result.append(EOL)
     val exprsIterator = exprs.toIterator
     while (exprsIterator.hasNext) {
-      val expr = exprsIterator.next();
-      result.append(toFormattedString(prefix + INDENT)(expr));
+      val expr = exprsIterator.next()
+      result.append(toFormattedString(prefix + INDENT)(expr))
       if (exprsIterator.hasNext)
         result.append(",").append(EOL)
     }
@@ -201,8 +197,8 @@ object behaviors {
 
   def buildStringIfExists(prefix: String, exprs: Iterator[Expr], sb: StringBuilder) = {
     while (exprs.hasNext) {
-      val expr = exprs.next();
-      sb.append(toFormattedString(prefix)(expr));
+      val expr = exprs.next()
+      sb.append(toFormattedString(prefix)(expr))
       if (exprs.hasNext)
         sb.append(",").append(EOL)
     }

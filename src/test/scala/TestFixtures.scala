@@ -70,8 +70,7 @@ object TestFixtures {
         )
       )
     )
-  //FIX: blank space after else (prefix)
-  val assignmentWithIfElseUnparsedString = "{\n  if (1) {\n    x = 2;\n  } else  {\n    x = 3;\n  }\n}"
+  val assignmentWithIfElseUnparsedString = "{\n  if (1) {\n    x = 2;\n  } else {\n    x = 3;\n  }\n}"
 
   val ifWithMultipleElseString = "if (1) { x = 1;  } else if (2) { x = 2; } else if(3){x=3;} else { x = 4; }"
   val ifWithMultipleElse =
@@ -110,8 +109,7 @@ object TestFixtures {
         )
       )
     )
-  //FIX: blank space after else (prefix)
-  val ifWithMultipleElseUnparsedString = "{\n  if (1) {\n    x = 1;\n  } else  if (2) {\n    x = 2;\n  } else  if (3) {\n    x = 3;\n  } else  {\n    x = 4;\n  }\n}"
+  val ifWithMultipleElseUnparsedString = "{\n  if (1) {\n    x = 1;\n  } else if (2) {\n    x = 2;\n  } else if (3) {\n    x = 3;\n  } else {\n    x = 4;\n  }\n}"
 
   val trelloExampleString = "if(-3+4+5*6){while(0){x=3;y=5;{xy=88;}}}"
   val trelloExample =

@@ -1,8 +1,5 @@
 package edu.luc.cs.laufer.cs473.expressions
 
-import java.io.{BufferedInputStream, BufferedOutputStream, PrintWriter}
-
-import jline.TerminalFactory
 import jline.console.ConsoleReader
 import org.parboiled2.ParseError
 import scala.util.{Failure, Success}
@@ -25,27 +22,33 @@ object Calculator extends App {
 
         println("\nThe unparsed expression is: ")
         println(unparse(statements))
-        //println("It has size " + size(expr) + " and depth " + depth(expr))
-        //println("It evaluates to " + evaluate(expr))
+      //println("It has size " + size(expr) + " and depth " + depth(expr))
+      //println("It evaluates to " + evaluate(expr))
     }
   }
 
+  def isAllBracketsClosed(s: String): Boolean =
+    (s.count((c: Char) => c == '{') == s.count((c: Char) => c == '}'))
+
   val console = new ConsoleReader()
   console.setPrompt("minic> ")
-  var line = ""
 
   if (args.length > 0) {
     processStatements(args mkString " ")
   } else {
-    println("Enter the expressions and press <enter> to parse your input")
+    println("Enter the expressions and press <enter> to parse your input (multiline expressions allowed inside blocks)")
     val input = new StringBuilder()
-
     Iterator continually {
       console.readLine()
     } takeWhile {
       Option(_).isDefined
     } foreach {
-      processStatements(_)
+      (s: String) =>
+        val buffer = input.append(s).toString
+        if (isAllBracketsClosed(buffer)) {
+          processStatements(buffer)
+          input.setLength(0)
+        }
     }
   }
 }

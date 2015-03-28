@@ -27,5 +27,6 @@ class TestParser extends FunSuite {
   test("parser works on whileLoop1") { assert(new Parser(whileLoop1String1).InputLine.run().get === whileLoop1) }
   test("parser works on whileLoop2") { assert(new Parser(whileLoop1String2).InputLine.run().get === whileLoop1) }
   test("parser works on trelloExample") { assert(new Parser(trelloExampleString).InputLine.run().get === trelloExample) }
+  test("parser works on trelloExampleModified") { assert(new Parser(trelloExampleModifiedString).InputLine.run().get === trelloExampleModified) }
 }
 

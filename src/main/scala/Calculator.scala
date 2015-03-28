@@ -11,19 +11,19 @@ object Calculator extends App {
     val parser = new Parser(input)
     parser.InputLine.run() match {
       case Failure(error: ParseError) =>
-        println("This expression could not be parsed:")
+        println("This statement could not be parsed:")
         println(parser.formatError(error))
       case Failure(error) =>
-        println("This expression could not be evaluated: " + error)
+        println("This statement could not be evaluated: " + error)
       case Success(statements) =>
         import behaviors._
-        println("\nThe parsed expression is: ")
+        println("\nThe parsed statements is: ")
         println(toFormattedString(statements))
-
-        println("\nThe unparsed expression is: ")
-        println(unparse(statements))
-      //println("It has size " + size(expr) + " and depth " + depth(expr))
-      //println("It evaluates to " + evaluate(expr))
+        println("\nThe unparsed statements is: ")
+        println(Unparser.unparse(statements))
+        print("\nIt evaluates to ")
+        println(Evaluator.evaluate(statements))
+        println("Memory: " + Evaluator.storeAsString)
     }
   }
 

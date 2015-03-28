@@ -6,21 +6,6 @@ import scala.collection.Iterator
 
 object behaviors {
 
-  def evaluate(e: Expr): Int = e match {
-    case Constant(c)                                => c
-    case UMinus(r)                                  => -evaluate(r)
-    case Plus(l, r)                                 => evaluate(l) + evaluate(r)
-    case Minus(l, r)                                => evaluate(l) - evaluate(r)
-    case Times(l, r)                                => evaluate(l) * evaluate(r)
-    case Div(l, r)                                  => evaluate(l) / evaluate(r)
-    case Mod(l, r)                                  => evaluate(l) % evaluate(r)
-    case Identifier(s)                              => -1
-    case Assignment(l,r)                            => -1
-    case Conditional(condExpr, ifBlock, elseBlock)  => -1
-    case Loop(condExpr, block)                      => -1
-    case Block(exprs @ _*)                          => -1
-  }
-
   def size(e: Expr): Int = e match {
     case Constant(c)                                => 1
     case UMinus(r)                                  => 1 + size(r)
@@ -73,91 +58,6 @@ object behaviors {
   def toFormattedString(es: Seq[Expr]): String = {
     val result = new StringBuilder("")
     buildStringIfExists("", es.toIterator, result)
-    result.toString
-  }
-
-  def unparse(e: Expr): String = toUnparsedString("")(e)
-
-  def toUnparsedString(prefix: String)(e: Expr): String = e match {
-    case Identifier(s) => prefix + s
-    case Constant(c) => prefix + c
-    case Assignment(l,r) => buildUnparsedBinaryExpr(prefix, "=", l, r, false)
-    case UMinus(r) => buildUnparsedUnaryExpr(prefix, "-", r)
-    case Plus(l,r) => buildUnparsedBinaryExpr(prefix, "+", l, r)
-    case Minus(l,r) => buildUnparsedBinaryExpr(prefix, "-", l, r)
-    case Times(l,r) => buildUnparsedBinaryExpr(prefix, "*", l, r)
-    case Div(l,r) => buildUnparsedBinaryExpr(prefix, "/", l, r)
-    case Mod(l,r) => buildUnparsedBinaryExpr(prefix, "%", l, r)
-    case Conditional(condition, ifBlock, elseBlock @ _*) => buildUnparsedConditional(prefix, condition, ifBlock, elseBlock:_*)
-    case Loop(condition, block) => buildUnparsedLoop(prefix, condition, block)
-    case Block(exprs @ _*) => buildUnparsedBlock(prefix, exprs:_*)
-  }
-
-  def buildUnparsedLoop(prefix: String, condition: Expr, block: Expr): String = {
-    val result = new StringBuilder
-    result.append(prefix)
-    result.append("while (")
-    result.append(toUnparsedString("")(condition))
-    result.append(") ")
-    result.append(toUnparsedString(prefix)(block).replaceAll("^\\s+", ""))
-    result.toString()
-  }
-
-  def buildUnparsedConditional(prefix: String, condition: Expr, ifBlock: Expr, elseBlock: Expr*): String = {
-    val result = new StringBuilder
-    result.append(prefix)
-    result.append("if ")
-    result.append("(")
-    result.append(toUnparsedString("")(condition))
-    result.append(") ")
-    result.append(toUnparsedString(prefix)(ifBlock).replaceAll("^\\s+", ""))
-    result.append(" else ")
-    if (!elseBlock.isEmpty)
-      elseBlock.foreach((e: Expr) =>
-        result.append(toUnparsedString(prefix)(e).replaceAll("^\\s+", ""))
-      )
-    else {
-      result.append("{")
-      result.append(EOL)
-      result.append(prefix + "}")
-    }
-    result.toString
-  }
-
-  def buildUnparsedUnaryExpr(prefix: String, operator: String, l: Expr): String = {
-    val a = new StringBuilder()
-    a.append(prefix)
-    a.append(operator)
-    a.append(toUnparsedString("")(l))
-    a.toString
-  }
-
-  def buildUnparsedBinaryExpr(prefix: String, operator: String, l: Expr, r: Expr, parens: Boolean = true): String = {
-    val a = new StringBuilder()
-    a.append(prefix)
-    if (parens) a.append("(")
-    a.append(toUnparsedString("")(l))
-    a.append(" ")
-    a.append(operator)
-    a.append(" ")
-    a.append(toUnparsedString("")(r))
-    if (parens) a.append(")")
-    a.toString
-  }
-
-  def buildUnparsedBlock(prefix: String, exprs: Expr*): String = {
-    val result = new StringBuilder
-    result.append(prefix).append("{")
-    exprs.foreach((e: Expr) => {
-      result.append(EOL)
-      result.append(toUnparsedString(prefix + U_INDENT)(e))
-      e match {
-        case Conditional(_,_,_*) | Loop(_,_) | Block(_*) =>
-        case _ => result.append(";")
-      }
-    })
-    result.append(EOL)
-    result.append(prefix).append("}")
     result.toString
   }
 

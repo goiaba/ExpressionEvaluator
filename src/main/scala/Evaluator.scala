@@ -1,6 +1,7 @@
 package edu.luc.cs.laufer.cs473.expressions
 
 import edu.luc.cs.laufer.cs473.expressions.ast._
+import scala.util.Try
 
 import scala.collection.mutable
 
@@ -45,7 +46,7 @@ object Evaluator {
 
   def storeAsString = "Map" + store.mkString("(",", ",")")
 
-  def evaluate(expr: Expr): LValue[Int] = { store.clear; evaluate(store)(expr) }
+  def evaluate(expr: Expr): Try[LValue[Int]] = { store.clear; Try(evaluate(store)(expr)) }
 
   def evaluate(store: Store)(expr: Expr): LValue[Int] = expr match {
     case Constant(c)                                => Cell(c)
@@ -65,7 +66,7 @@ object Evaluator {
         val lvalue = evaluate(store)(l)
         val rvalue = evaluate(store)(r)
         store(s) = lvalue.set(rvalue.get)
-        Cell.NULL
+        store(s)
       }
     }
     case Conditional(condExpr, ifBlock, elseBlock @ _*)  => {

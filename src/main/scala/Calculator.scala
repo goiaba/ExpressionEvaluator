@@ -32,6 +32,7 @@ object Calculator extends App {
 
   val console = new ConsoleReader()
   console.setPrompt("minic> ")
+  println("Memory: " + Evaluator.storeAsString)
 
   if (args.length > 0) {
     processStatements(args mkString " ")

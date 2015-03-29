@@ -2,6 +2,8 @@ package edu.luc.cs.laufer.cs473.expressions
 
 import edu.luc.cs.laufer.cs473.expressions.ast._
 import scala.util.Try
+import scala.util.Success
+import scala.util.Failure
 
 import scala.collection.mutable
 
@@ -46,7 +48,9 @@ object Evaluator {
 
   def storeAsString = "Map" + store.mkString("(",", ",")")
 
-  def evaluate(expr: Expr): Try[LValue[Int]] = { store.clear; Try(evaluate(store)(expr)) }
+  def memory = store
+
+  def evaluate(expr: Expr): Try[LValue[Int]] = { Try(evaluate(store)(expr)) }
 
   def evaluate(store: Store)(expr: Expr): LValue[Int] = expr match {
     case Constant(c)                                => Cell(c)
@@ -59,14 +63,15 @@ object Evaluator {
     case Identifier(s)                              => {
       val svalue = store.get(s)
       if (svalue.isDefined) Cell(svalue.get.get)
-      else Cell(0)
+      else throw new NoSuchFieldException(s)
     }
     case Assignment(l,r)                            => l match {
       case Identifier(s) => {
-        val lvalue = evaluate(store)(l)
+        val lvalue = Try(evaluate(store)(l)).getOrElse(Cell(0))
         val rvalue = evaluate(store)(r)
         store(s) = lvalue.set(rvalue.get)
         store(s)
+        Cell.NULL
       }
     }
     case Conditional(condExpr, ifBlock, elseBlock @ _*)  => {
@@ -76,7 +81,6 @@ object Evaluator {
       } else {
         elseBlock.foldLeft(Cell.NULL.asInstanceOf[LValue[Int]])((c: LValue[Int], s: Expr) => evaluate(store)(s))
       }
-      Cell.NULL
     }
     case Loop(condExpr, block)                      => {
       var cvalue = evaluate(store)(condExpr)

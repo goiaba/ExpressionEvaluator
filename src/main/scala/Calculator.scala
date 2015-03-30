@@ -17,11 +17,11 @@ object Calculator extends App {
         println("This statement could not be evaluated: " + error)
       case Success(statements) =>
         import behaviors._
-        println("\nThe parsed statements is: ")
+        println("The parsed statements are: ")
         println(toFormattedString(statements))
-        println("\nThe unparsed statements is: ")
+        println("The unparsed statements are: ")
         println(Unparser.unparse(statements))
-        print("\nIt evaluates to ")
+        print("It evaluates to ")
         println(Evaluator.evaluate(statements))
         println("Memory: " + Evaluator.storeAsString)
     }
@@ -32,12 +32,12 @@ object Calculator extends App {
 
   val console = new ConsoleReader()
   console.setPrompt("minic> ")
+  println("Enter the expressions and press <enter> to parse your input (multiline expressions allowed inside blocks)")
   println("Memory: " + Evaluator.storeAsString)
 
   if (args.length > 0) {
     processStatements(args mkString " ")
   } else {
-    println("Enter the expressions and press <enter> to parse your input (multiline expressions allowed inside blocks)")
     val input = new StringBuilder()
     Iterator continually {
       console.readLine()

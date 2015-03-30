@@ -111,7 +111,7 @@ object TestFixtures {
     )
   val ifWithMultipleElseUnparsedString = "{\n  if (1) {\n    x = 1;\n  } else if (2) {\n    x = 2;\n  } else if (3) {\n    x = 3;\n  } else {\n    x = 4;\n  }\n}"
 
-  val trelloExampleModifiedString = "if(-3+4+5*6){if(3) {x=3;} while(0){x=3;y=5;{xy=88;}}} else if(-2) { y=x+y+z*3;} else {xwq=-2123;x=4;}"
+  val trelloExampleModifiedString = "if(-3+4+5*6){if(3) {x=3;} while(x){x=x-1;y=5;{xy=88;}}} else if(-2) { y=x+y+z*3;} else {xwq=-2123;x=4;}"
   val trelloExampleModified =
     Block(
       Conditional(
@@ -138,11 +138,14 @@ object TestFixtures {
             )
           ),
           Loop(
-            Constant(0),
+            Identifier("x"),
             Block(
               Assignment(
                 Identifier("x"),
-                Constant(3)
+                Minus(
+                  Identifier("x"),
+                  Constant(1)
+                )
               ),
               Assignment(
                 Identifier("y"),
@@ -191,7 +194,7 @@ object TestFixtures {
         )
       )
     )
-  val trelloExampleModifiedUnparsedString = "{\n  if (((-3 + 4) + (5 * 6))) {\n    if (3) {\n      x = 3;\n    }\n    while (0) {\n      x = 3;\n      y = 5;\n      {\n        xy = 88;\n      }\n    }\n  } else if (-2) {\n    y = ((x + y) + (z * 3));\n  } else {\n    xwq = -2123;\n    x = 4;\n  }\n}"
+  val trelloExampleModifiedUnparsedString = "{\n  if (((-3 + 4) + (5 * 6))) {\n    if (3) {\n      x = 3;\n    }\n    while (x) {\n      x = (x - 1);\n      y = 5;\n      {\n        xy = 88;\n      }\n    }\n  } else if (-2) {\n    y = ((x + y) + (z * 3));\n  } else {\n    xwq = -2123;\n    x = 4;\n  }\n}"
 
   val trelloExampleString = "if(-3+4+5*6){while(0){x=3;y=5;{xy=88;}}}"
   val trelloExample =

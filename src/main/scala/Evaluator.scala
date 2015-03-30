@@ -70,7 +70,6 @@ object Evaluator {
         val lvalue = Try(evaluate(store)(l)).getOrElse(Cell(0))
         val rvalue = evaluate(store)(r)
         store(s) = lvalue.set(rvalue.get)
-        store(s)
         Cell.NULL
       }
     }

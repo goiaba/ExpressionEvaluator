@@ -65,13 +65,11 @@ object Evaluator {
       if (svalue.isDefined) Cell(svalue.get.get)
       else throw new NoSuchFieldException(s)
     }
-    case Assignment(l,r)                            => l match {
-      case Identifier(s) => {
-        val lvalue = Try(evaluate(store)(l)).getOrElse(Cell(0))
-        val rvalue = evaluate(store)(r)
-        store(s) = lvalue.set(rvalue.get)
-        Cell.NULL
-      }
+    case Assignment(l,r)                            => {
+      val lvalue = Try(evaluate(store)(l)).getOrElse(Cell(0))
+      val rvalue = evaluate(store)(r)
+      store(l.variable) = lvalue.set(rvalue.get)
+      Cell.NULL
     }
     case Conditional(condExpr, ifBlock, elseBlock @ _*)  => {
       val cvalue = evaluate(store)(condExpr)

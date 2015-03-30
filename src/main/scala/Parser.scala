@@ -33,7 +33,7 @@ class Parser(val input: ParserInput) extends org.parboiled2.Parser {
   def Statement = rule { Expression ~ ws(';') | Assign | Conditional | Loop | Block }
 
   /** assignment  ::= ident "=" expr ";" **/
-  def Assign = rule { Ident ~ ws('=') ~ Expression ~ ws(';') ~> ((x,y) => Assignment(x: Expr, y)) }
+  def Assign = rule { Ident ~ ws('=') ~ Expression ~ ws(';') ~> ((x,y) => Assignment(x: Identifier, y: Expr)) }
 
   /** block ::= { statement* } */
   def Block: Rule1[Expr] = rule { ws('{') ~ zeroOrMore(Statement) ~ ws('}') ~> ((e: Seq[Expr]) => ast.Block(e:_*)) }

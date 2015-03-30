@@ -11,7 +11,7 @@ case class Div(left: Expr, right: Expr) extends Expr
 case class Mod(left: Expr, right: Expr) extends Expr
 
 case class Identifier(variable: String) extends Expr
-case class Assignment(left:Expr, right: Expr) extends Expr
+case class Assignment(left:Identifier, right: Expr) extends Expr
 case class Block(exprs: Expr*) extends Expr
 case class Conditional(condExpr: Expr, ifBlock: Expr, elseBlock: Expr*) extends Expr
 case class Loop(condExpr: Expr, block: Expr) extends Expr

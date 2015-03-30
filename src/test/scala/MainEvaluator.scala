@@ -19,64 +19,51 @@ class TestEvaluator extends FunSuite {
 
   def parserFixture(string: String) = {
     val parser = new Parser(string)
-    parser.InputLine.run()
+    val stmt = parser.InputLine.run().get
+    Evaluator.evaluate(stmt)
   }
 
   test("evaluate singleAssignment") {
-    parserFixture(singleAssignmentString) match {
-      case Success(statements) =>
-        val result = Evaluator.evaluate(statements)
-        assert(result == Success(Cell(0)))
-        assert(Evaluator.memory.get("x").get == Cell(5))
-    }
+    val result = parserFixture(singleAssignmentString)
+    assert(result === Success(Cell(0)))
+    assert(Evaluator.memory.get("x").get === Cell(5))
   }
 
   test("evaluate works on complexAssignment") {
-    parserFixture(complexAssignmentString) match {
-      case Success(statements) =>
-        val result = Evaluator.evaluate(statements)
-        assert(result == Failure(new java.lang.NoSuchFieldException("y2")))
+    val result = parserFixture(complexAssignmentString)
+    intercept[java.lang.NoSuchFieldException] {
+      result.get
     }
   }
 
   test("evaluate works on assignmentWithIf") {
-    parserFixture(assignmentWithIfString) match {
-      case Success(statements) =>
-        val result = Evaluator.evaluate(statements)
-        assert(result == Success(Cell(0)))
-        assert(Evaluator.memory.get("x").get == Cell(2))
-    }
+    val result = parserFixture(assignmentWithIfString)
+    assert(result == Success(Cell(0)))
+    assert(Evaluator.memory.get("x").get == Cell(2))
   }
   test("evaluate works on assignmentWithIfElse") {
-    parserFixture(assignmentWithIfElseString) match {
-      case Success(statements) =>
-        val result = Evaluator.evaluate(statements)
-        assert(result == Success(Cell(0)))
-        assert(Evaluator.memory.get("x").get == Cell(2))
-    }
+    val result = parserFixture(assignmentWithIfElseString)
+    assert(result == Success(Cell(0)))
+    assert(Evaluator.memory.get("x").get == Cell(2))
   }
+
   test("evaluate works on ifWithMultipleElseString") {
-    parserFixture(ifWithMultipleElseString) match {
-      case Success(statements) =>
-        val result = Evaluator.evaluate(statements)
-        assert(result == Success(Cell(0)))
-        assert(Evaluator.memory.get("x").get == Cell(1))
-    }
+    val result = parserFixture(ifWithMultipleElseString)
+    assert(result == Success(Cell(0)))
+    assert(Evaluator.memory.get("x").get == Cell(1))
   }
 
   test("evaluate works on assignmentWithinBlock") {
-    parserFixture(assignmentWithinBlockString) match {
-      case Success(statements) =>
-        val result = Evaluator.evaluate(statements)
-        assert(result == Failure(new NoSuchFieldException("r")))
+    val result = parserFixture(assignmentWithinBlockString)
+    intercept[java.lang.NoSuchFieldException] {
+      result.get
     }
   }
 
   test("parser works on ifWithDoubleAssignment") {
-    parserFixture(ifWithDoubleAssignmentString) match {
-      case Success(statements) =>
-        val result = Evaluator.evaluate(statements)
-        assert(result == Failure(new NoSuchFieldException("r")))
+    val result = parserFixture(ifWithDoubleAssignmentString)
+    intercept[java.lang.NoSuchFieldException] {
+      result.get
     }
   }
 

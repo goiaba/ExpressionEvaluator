@@ -11,3 +11,5 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.2.4" % Test,
   "jline" % "jline" % "2.12.1"
 )
+
+ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages := """.*Calculator.*"""

@@ -20,13 +20,6 @@ object Unparser {
   val ia = Set[Attributes](Semicolon, Parens, Indent)
   val sa = Set[Attributes](Semicolon, Parens, Indent)
 
-  private def genBinary(prefix: String, l: String, op: String, r: String) = {
-    var expr = l + " " + op + " " + r
-    if (ia.contains(Parens)) expr = "(" + expr + ")"
-    if (ia.contains(Indent)) expr = prefix + expr
-    expr
-  }
-
   private def resetFlags = {
     ia.add(Semicolon); ia.add(Parens); ia.add(Indent)
     sa.add(Semicolon); sa.add(Parens); sa.add(Indent)
@@ -96,7 +89,6 @@ object Unparser {
   }
 
   val EOL = scala.util.Properties.lineSeparator
-  val INDENT = ".."
   val U_INDENT = "  "
 
 }

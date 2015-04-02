@@ -6,21 +6,6 @@ import scala.collection.Iterator
 
 object behaviors {
 
-  def size(e: Expr): Int = e match {
-    case Constant(c)                                => 1
-    case UMinus(r)                                  => 1 + size(r)
-    case Plus(l, r)                                 => 1 + size(l) + size(r)
-    case Minus(l, r)                                => 1 + size(l) + size(r)
-    case Times(l, r)                                => 1 + size(l) + size(r)
-    case Div(l, r)                                  => 1 + size(l) + size(r)
-    case Mod(l, r)                                  => 1 + size(l) + size(r)
-    case Identifier(s)                              => -1
-    case Assignment(l,r)                            => -1
-    case Conditional(condExpr, ifBlock, elseBlock)  => -1
-    case Loop(condExpr, block)                      => -1
-    case Block(exprs @ _*)                          => -1
-  }
-
   def depth(e: Expr): Int = e match {
     case Constant(c) => 1
     case UMinus(r)   => 1 + depth(r)
@@ -55,12 +40,6 @@ object behaviors {
 
   def toFormattedString(e: Expr): String = toFormattedString("")(e)
 
-  def toFormattedString(es: Seq[Expr]): String = {
-    val result = new StringBuilder("")
-    buildStringIfExists("", es.toIterator, result)
-    result.toString
-  }
-
   def buildConditionalString(prefix: String, nodeString: String, condExpr: Expr, ifBlock: Expr, elseBlocks: Expr*) = {
     val result = new StringBuilder(prefix)
     result.append(nodeString)
@@ -93,15 +72,6 @@ object behaviors {
     }
     result.append(")")
     result.toString
-  }
-
-  def buildStringIfExists(prefix: String, exprs: Iterator[Expr], sb: StringBuilder) = {
-    while (exprs.hasNext) {
-      val expr = exprs.next()
-      sb.append(toFormattedString(prefix)(expr))
-      if (exprs.hasNext)
-        sb.append(",").append(EOL)
-    }
   }
 
   def buildExprString(prefix: String, nodeString: String, leftString: String, rightString: String) = {

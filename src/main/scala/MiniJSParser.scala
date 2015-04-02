@@ -3,7 +3,7 @@ package edu.luc.cs.laufer.cs473.expressions
 import org.parboiled2._
 import ast._
 
-class Parser(val input: ParserInput) extends org.parboiled2.Parser {
+class MiniJSParser(val input: ParserInput) extends org.parboiled2.Parser {
 
   def InputLine = rule {
     WhiteSpace ~ Block ~ EOI |

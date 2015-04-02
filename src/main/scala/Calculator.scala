@@ -8,7 +8,7 @@ object Calculator extends App {
 
   def processStatements(input: String): Unit = {
     println("You entered: " + input)
-    val parser = new Parser(input)
+    val parser = new MiniJSParser(input)
     parser.InputLine.run() match {
       case Failure(error: ParseError) =>
         println("This statement could not be parsed:")

@@ -1,9 +1,6 @@
 package edu.luc.cs.laufer.cs473.expressions
 
-import edu.luc.cs.laufer.cs473.expressions.Parser
 import edu.luc.cs.laufer.cs473.expressions.TestFixtures._
-import edu.luc.cs.laufer.cs473.expressions.behaviors._
-import org.parboiled2.ParseError
 import org.scalatest.FunSuite
 
 import scala.util.{Success, Failure}
@@ -18,7 +15,7 @@ object MainEvaluator extends App {
 class TestEvaluator extends FunSuite {
 
   def parserFixture(string: String) = {
-    val parser = new Parser(string)
+    val parser = new MiniJSParser(string)
     val stmt = parser.InputLine.run().get
     Evaluator.evaluate(stmt)
   }
@@ -27,6 +24,7 @@ class TestEvaluator extends FunSuite {
     val result = parserFixture(singleAssignmentString)
     assert(result === Success(Cell(0)))
     assert(Evaluator.memory.get("x").get === Cell(5))
+    assert(Evaluator.storeAsString === "Map(x -> Cell(5))")
   }
 
   test("evaluate works on complexAssignment") {
@@ -65,6 +63,21 @@ class TestEvaluator extends FunSuite {
     intercept[java.lang.NoSuchFieldException] {
       result.get
     }
+  }
+
+  test("evaluate works on simpleWhile") {
+    val result = parserFixture(simpleWhileString)
+    assert(result == Success(Cell(0)))
+    assert(Evaluator.memory.get("x").get == Cell(0))
+    assert(Evaluator.memory.get("y").get == Cell(155))
+  }
+
+  test("evaluate works on elseBranch") {
+    val result = parserFixture(elseBranchString)
+    assert(result == Success(Cell(0)))
+    assert(Evaluator.memory.get("x").get == Cell(3))
+    assert(Evaluator.memory.get("y").get == Cell(5))
+
   }
 
 }

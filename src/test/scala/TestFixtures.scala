@@ -34,6 +34,9 @@ object TestFixtures {
         )
       )
     )
+  val complexAssignmentASTString =
+    "Block(\n..Assignment(\n....x, \n....Div(\n......Minus(\n........Plus(\n..........1, \n..........y2), " +
+      "\n........Times(\n..........3, \n..........y4)), \n......5)))"
   val complexAssignmentUnparsedString = "{\n  x = (((1 + y2) - (3 * y4)) / 5);\n}"
 
   val assignmentWithIfString = "if (1) { x = 2;  }"
@@ -49,6 +52,8 @@ object TestFixtures {
         )
       )
     )
+  val assignmentWithIfASTString =
+    "Block(\n..Conditional(\n....1, \n....Block(\n......Assignment(\n........x, \n........2))))"
   val assignmentWithIfUnparsedString = "{\n  if (1) {\n  x = 2;\n  }\n}"
 
   val assignmentWithIfElseString = "if (1) { x = 2;  } else { x = 3; }"
@@ -70,6 +75,9 @@ object TestFixtures {
         )
       )
     )
+  val assignmentWithIfElseASTString =
+    "Block(\n..Conditional(\n....1, \n....Block(\n......Assignment(\n........x, " +
+    "\n........2)),\n....Block(\n......Assignment(\n........x, \n........3))))"
   val assignmentWithIfElseUnparsedString = "{\n  if (1) {\n    x = 2;\n  } else {\n    x = 3;\n  }\n}"
 
   val ifWithMultipleElseString = "if (1) { x = 1;  } else if (2) { x = 2; } else if(3){x=3;} else { x = 4; }"
@@ -109,7 +117,13 @@ object TestFixtures {
         )
       )
     )
-  val ifWithMultipleElseUnparsedString = "{\n  if (1) {\n    x = 1;\n  } else if (2) {\n    x = 2;\n  } else if (3) {\n    x = 3;\n  } else {\n    x = 4;\n  }\n}"
+  val ifWithMultipleElseASTString =
+    "Block(\n..Conditional(\n....1, \n....Block(\n......Assignment(\n........x, \n........1)),\n....Conditional(" +
+      "\n......2, \n......Block(\n........Assignment(\n..........x, \n..........2)),\n......Conditional(\n........3, " +
+      "\n........Block(\n..........Assignment(\n............x, \n............3)),\n........Block(\n..........Assignment(" +
+      "\n............x, \n............4))))))"
+  val ifWithMultipleElseUnparsedString =
+    "{\n  if (1) {\n    x = 1;\n  } else if (2) {\n    x = 2;\n  } else if (3) {\n    x = 3;\n  } else {\n    x = 4;\n  }\n}"
 
   val trelloExampleModifiedString = "if(-3+4+5*6){if(3) {x=3;} while(x){x=x-1;y=5;{xy=88;}}} else if(-2) { y=x+y+z*3;} else {xwq=-2123;x=4;}"
   val trelloExampleModified =
@@ -194,6 +208,16 @@ object TestFixtures {
         )
       )
     )
+  val trelloExampleModifiedASTString =
+    "Block(\n..Conditional(\n....Plus(\n......Plus(\n........UMinus(\n..........3), \n........4), " +
+    "\n......Times(\n........5, \n........6)), \n....Block(\n......Conditional(\n........3, \n........Block(" +
+    "\n..........Assignment(\n............x, \n............3))),\n......Loop(\n........x, \n........Block(" +
+    "\n..........Assignment(\n............x, \n............Minus(\n..............x, \n..............1))," +
+    "\n..........Assignment(\n............y, \n............5),\n..........Block(\n............Assignment(" +
+    "\n..............xy, \n..............88))))),\n....Conditional(\n......UMinus(\n........2), \n......Block(" +
+    "\n........Assignment(\n..........y, \n..........Plus(\n............Plus(\n..............x, \n..............y), " +
+    "\n............Times(\n..............z, \n..............3)))),\n......Block(\n........Assignment(\n..........xwq, " +
+    "\n..........UMinus(\n............2123)),\n........Assignment(\n..........x, \n..........4)))))"
   val trelloExampleModifiedUnparsedString = "{\n  if (((-3 + 4) + (5 * 6))) {\n    if (3) {\n      x = 3;\n    }\n    while (x) {\n      x = (x - 1);\n      y = 5;\n      {\n        xy = 88;\n      }\n    }\n  } else if (-2) {\n    y = ((x + y) + (z * 3));\n  } else {\n    xwq = -2123;\n    x = 4;\n  }\n}"
 
   val trelloExampleString = "if(-3+4+5*6){while(0){x=3;y=5;{xy=88;}}}"
@@ -349,4 +373,85 @@ object TestFixtures {
       )
     )
   val complex2UnparsedString = "{\n  (((1 + 2) - (-3 * 4)) % 5);\n}"
+
+  val elseBranchString = "x=3; y=3; if (((x--y)*x/y)%y) { x = 4; } else { y = 5; }"
+  val elseBranch =
+    Block(
+      Assignment(
+        Identifier("x"),
+        Constant(3)
+      ),
+      Assignment(
+        Identifier("y"),
+        Constant(3)
+      ),
+      Conditional(
+        Mod(
+          Div(
+            Times(
+              Minus(
+                Identifier("x"),
+                UMinus(
+                  Identifier("y")
+                )
+              ),
+              Identifier("x")
+            ),
+            Identifier("y")
+          ),
+          Identifier("y")
+        ),
+        Block(
+          Assignment(
+            Identifier("x"),
+            Constant(4)
+          )
+        ),
+        Block(
+          Assignment(
+            Identifier("y"),
+            Constant(5)
+          )
+        )
+      )
+    )
+  val elseBranchASTString =
+    "Block(\n..Assignment(\n....x, \n....3),\n..Assignment(\n....y, \n....3),\n..Conditional(\n....Mod(\n......Div(" +
+      "\n........Times(\n..........Minus(\n............x, \n............UMinus(\n..............y)), \n..........x), " +
+      "\n........y), \n......y), \n....Block(\n......Assignment(\n........x, \n........4)),\n....Block(" +
+      "\n......Assignment(\n........y, \n........5))))"
+  val elseBranchUnparsedString = "{\n  x = 3;\n  y = 3;\n  if (((((x - -y) * x) / y) % y)) {\n    x = 4;\n  } else {\n    y = 5;\n  }\n}"
+
+  val simpleWhileString = "x=10; y=100; while (x) { y=y+x; x=x-1; }"
+  val simpleWhile =
+    Block(
+      Assignment(
+        Identifier("x"),
+        Constant(10)
+      ),
+      Assignment(
+        Identifier("y"),
+        Constant(100)
+      ),
+      Loop(
+        Identifier("x"),
+        Block(
+          Assignment(
+            Identifier("y"),
+            Plus(
+              Identifier("y"),
+              Identifier("x")
+            )
+          ),
+          Assignment(
+            Identifier("x"),
+            Minus(
+              Identifier("x"),
+              Constant(1)
+            )
+          )
+        )
+      )
+    )
+  val simpleWhileUnparsedString = "{\n  x = 10;\n  y = 100;\n  while (x) {\n    y = y + x;\n    x = x - 1;\n  }\n}"
 }

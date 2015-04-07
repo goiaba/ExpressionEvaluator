@@ -39,6 +39,7 @@ object Calculator extends App {
     processStatements(args mkString " ")
   } else {
     val input = new StringBuilder()
+    var emptyLinesCount = 0
     Iterator continually {
       console.readLine()
     } takeWhile {
@@ -46,8 +47,13 @@ object Calculator extends App {
     } foreach {
       (s: String) =>
         val buffer = input.append(s).toString
+        if ("".equals(s)) emptyLinesCount += 1
         if (isAllBracketsClosed(buffer)) {
           processStatements(buffer)
+          input.setLength(0)
+        } else if (emptyLinesCount == 2) {
+          println("You typed two blank lines.  Starting a new command.")
+          emptyLinesCount = 0
           input.setLength(0)
         }
     }

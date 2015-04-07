@@ -22,9 +22,9 @@ class TestEvaluator extends FunSuite {
 
   test("evaluate singleAssignment") {
     val result = parserFixture(singleAssignmentString)
-    assert(result === Success(Cell(0)))
-    assert(Evaluator.memory.get("x").get === Cell(5))
-    assert(Evaluator.storeAsString === "Map(x -> Cell(5))")
+    assert(result === Success(Num(0)))
+    assert(Evaluator.memory.get("x").get === Cell(Num(5)))
+    assert(Evaluator.storeAsString === "Map(x -> Cell(Num(5)))")
   }
 
   test("evaluate works on complexAssignment") {
@@ -36,19 +36,19 @@ class TestEvaluator extends FunSuite {
 
   test("evaluate works on assignmentWithIf") {
     val result = parserFixture(assignmentWithIfString)
-    assert(result == Success(Cell(0)))
-    assert(Evaluator.memory.get("x").get == Cell(2))
+    assert(result == Success(Num(0)))
+    assert(Evaluator.memory.get("x").get == Cell(Num(2)))
   }
   test("evaluate works on assignmentWithIfElse") {
     val result = parserFixture(assignmentWithIfElseString)
-    assert(result == Success(Cell(0)))
-    assert(Evaluator.memory.get("x").get == Cell(2))
+    assert(result == Success(Num(0)))
+    assert(Evaluator.memory.get("x").get == Cell(Num(2)))
   }
 
   test("evaluate works on ifWithMultipleElseString") {
     val result = parserFixture(ifWithMultipleElseString)
-    assert(result == Success(Cell(0)))
-    assert(Evaluator.memory.get("x").get == Cell(1))
+    assert(result == Success(Num(0)))
+    assert(Evaluator.memory.get("x").get == Cell(Num(1)))
   }
 
   test("evaluate works on assignmentWithinBlock") {
@@ -67,16 +67,16 @@ class TestEvaluator extends FunSuite {
 
   test("evaluate works on simpleWhile") {
     val result = parserFixture(simpleWhileString)
-    assert(result == Success(Cell(0)))
-    assert(Evaluator.memory.get("x").get == Cell(0))
-    assert(Evaluator.memory.get("y").get == Cell(155))
+    assert(result == Success(Num(0)))
+    assert(Evaluator.memory.get("x").get == Cell(Num(0)))
+    assert(Evaluator.memory.get("y").get == Cell(Num(155)))
   }
 
   test("evaluate works on elseBranch") {
     val result = parserFixture(elseBranchString)
-    assert(result == Success(Cell(0)))
-    assert(Evaluator.memory.get("x").get == Cell(3))
-    assert(Evaluator.memory.get("y").get == Cell(5))
+    assert(result == Success(Num(0)))
+    assert(Evaluator.memory.get("x").get == Cell(Num(3)))
+    assert(Evaluator.memory.get("y").get == Cell(Num(5)))
 
   }
 

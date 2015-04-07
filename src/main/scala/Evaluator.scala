@@ -5,11 +5,21 @@ import scala.util.Try
 import scala.util.Success
 import scala.util.Failure
 
-import scala.collection.mutable
+import scala.collection.mutable.{Map => MMap}
 
 /**
  * Created by bruno on 3/28/15.
  */
+
+trait Value[V] {
+  def get: V
+  def set(value: V): Value[V]
+}
+
+case class Num(var value: Int) extends Value[Int] {
+  def get: Int = value
+  def set(value: Int) = { this.value = value; this }
+}
 
 /**
  * Something that can be used on the right-hand side of an assignment.
@@ -37,46 +47,46 @@ case class Cell[T](var value: T) extends LValue[T] {
  * A companion object defining a useful Cell instance.
  */
 object Cell {
-  val NULL = Cell(0)
+  val NULL = Cell(Num(0))
 }
 
 object Evaluator {
 
-  type Store = mutable.Map[String, LValue[Int]]
+  type Store = MMap[String, LValue[Value[Int]]]
 
-  private val store: Store = mutable.Map[String, LValue[Int]]()
+  private val store: Store = MMap[String, LValue[Value[Int]]]()
 
   def storeAsString = "Map" + store.mkString("(",", ",")")
 
   def memory = store
 
-  def evaluate(expr: Expr): Try[LValue[Int]] = { Try(evaluate(store)(expr)) }
+  def evaluate(expr: Expr): Try[Value[Int]] = { Try(evaluate(store)(expr)) }
 
-  def evaluate(store: Store)(expr: Expr): LValue[Int] = expr match {
-    case Constant(c)                                => Cell(c)
-    case UMinus(r)                                  => Cell(-evaluate(store)(r).get)
-    case Plus(l, r)                                 => Cell(evaluate(store)(l).get + evaluate(store)(r).get)
-    case Minus(l, r)                                => Cell(evaluate(store)(l).get - evaluate(store)(r).get)
-    case Times(l, r)                                => Cell(evaluate(store)(l).get * evaluate(store)(r).get)
-    case Div(l, r)                                  => Cell(evaluate(store)(l).get / evaluate(store)(r).get)
-    case Mod(l, r)                                  => Cell(evaluate(store)(l).get % evaluate(store)(r).get)
+  private def evaluate(store: Store)(expr: Expr): Value[Int] = expr match {
+    case Constant(c)                                => Num(c)
+    case UMinus(r)                                  => Num(-evaluate(store)(r).get)
+    case Plus(l, r)                                 => Num(evaluate(store)(l).get + evaluate(store)(r).get)
+    case Minus(l, r)                                => Num(evaluate(store)(l).get - evaluate(store)(r).get)
+    case Times(l, r)                                => Num(evaluate(store)(l).get * evaluate(store)(r).get)
+    case Div(l, r)                                  => Num(evaluate(store)(l).get / evaluate(store)(r).get)
+    case Mod(l, r)                                  => Num(evaluate(store)(l).get % evaluate(store)(r).get)
     case Identifier(s)                              => {
       val svalue = store.get(s)
-      if (svalue.isDefined) Cell(svalue.get.get)
+      if (svalue.isDefined) svalue.get.get
       else throw new NoSuchFieldException(s)
     }
     case Assignment(l,r)                            => {
-      val lvalue = Try(evaluate(store)(l)).getOrElse(Cell(0))
+      val lvalue = Try(evaluate(store)(l)).getOrElse(Num(0))
       val rvalue = evaluate(store)(r)
-      store(l.variable) = lvalue.set(rvalue.get)
-      Cell.NULL
+      store(l.variable) = Cell(lvalue.set(rvalue.get))
+      Cell.NULL.get
     }
     case Conditional(condExpr, ifBlock, elseBlock @ _*)  => {
       val cvalue = evaluate(store)(condExpr)
       if (cvalue.get != 0 /*true*/) {
         evaluate(store)(ifBlock)
       } else {
-        elseBlock.foldLeft(Cell.NULL.asInstanceOf[LValue[Int]])((c: LValue[Int], s: Expr) => evaluate(store)(s))
+        elseBlock.foldLeft(Cell.NULL.get.asInstanceOf[Value[Int]])((c: Value[Int], s: Expr) => evaluate(store)(s))
       }
     }
     case Loop(condExpr, block)                      => {
@@ -85,10 +95,10 @@ object Evaluator {
         evaluate(store)(block)
         cvalue = evaluate(store)(condExpr)
       }
-      Cell.NULL
+      Cell.NULL.get
     }
     case Block(exprs @ _*)                          =>
-      exprs.foldLeft(Cell.NULL.asInstanceOf[LValue[Int]])((c: LValue[Int], s: Expr) => evaluate(store)(s))
+      exprs.foldLeft(Cell.NULL.get.asInstanceOf[Value[Int]])((c: Value[Int], s: Expr) => evaluate(store)(s))
   }
 
 }

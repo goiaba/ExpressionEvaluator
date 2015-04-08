@@ -2,24 +2,14 @@ package edu.luc.cs.laufer.cs473.expressions
 
 import edu.luc.cs.laufer.cs473.expressions.ast._
 import scala.util.Try
-import scala.util.Success
-import scala.util.Failure
-
 import scala.collection.mutable.{Map => MMap}
 
 /**
  * Created by bruno on 3/28/15.
  */
-
-trait Value[V] {
-  def get: V
-  def set(value: V): Value[V]
-}
-
-case class Num(var value: Int) extends Value[Int] {
-  def get: Int = value
-  def set(value: Int) = { this.value = value; this }
-}
+trait Value
+case class Num(var value: Int) extends Value
+case class Ins(var value: MMap[String, LValue[Value]]) extends Value
 
 /**
  * Something that can be used on the right-hand side of an assignment.
@@ -52,53 +42,79 @@ object Cell {
 
 object Evaluator {
 
-  type Store = MMap[String, LValue[Value[Int]]]
+  type Store = MMap[String, LValue[Value]]
 
-  private val store: Store = MMap[String, LValue[Value[Int]]]()
+  private val store: Store = MMap[String, LValue[Value]]()
 
   def storeAsString = "Map" + store.mkString("(",", ",")")
 
-  def memory = store
+  def memory = store.toMap
 
-  def evaluate(expr: Expr): Try[Value[Int]] = { Try(evaluate(store)(expr)) }
+  def asNum(v: Value): Int = v match {
+    case Num(value) => value
+    case _ => throw new RuntimeException("Wrong type")
+  }
 
-  private def evaluate(store: Store)(expr: Expr): Value[Int] = expr match {
+  def evaluate(expr: Expr): Try[Value] = { Try(evaluate(store)(expr)) }
+
+  def evaluate(store: Store)(expr: Expr): Value = expr match {
     case Constant(c)                                => Num(c)
-    case UMinus(r)                                  => Num(-evaluate(store)(r).get)
-    case Plus(l, r)                                 => Num(evaluate(store)(l).get + evaluate(store)(r).get)
-    case Minus(l, r)                                => Num(evaluate(store)(l).get - evaluate(store)(r).get)
-    case Times(l, r)                                => Num(evaluate(store)(l).get * evaluate(store)(r).get)
-    case Div(l, r)                                  => Num(evaluate(store)(l).get / evaluate(store)(r).get)
-    case Mod(l, r)                                  => Num(evaluate(store)(l).get % evaluate(store)(r).get)
+    case UMinus(r)                                  => Num(-asNum(evaluate(store)(r)))
+    case Plus(l, r)                                 => Num(asNum(evaluate(store)(l)) + asNum(evaluate(store)(r)))
+    case Minus(l, r)                                => Num(asNum(evaluate(store)(l)) - asNum(evaluate(store)(r)))
+    case Times(l, r)                                => Num(asNum(evaluate(store)(l)) * asNum(evaluate(store)(r)))
+    case Div(l, r)                                  => Num(asNum(evaluate(store)(l)) / asNum(evaluate(store)(r)))
+    case Mod(l, r)                                  => Num(asNum(evaluate(store)(l)) % asNum(evaluate(store)(r)))
+    case Select(root, selectors @ _*)               => {
+      selectors.foldLeft(evaluate(store)(root))((acc: Value, el: Identifier) =>
+        acc match {
+          case Ins(m) => m.get(el.variable).get.get
+          case Num(v) => acc
+        }
+      )
+    }
+    case Struct(m)                                  => {
+      Cell.NULL.get
+    }
     case Identifier(s)                              => {
       val svalue = store.get(s)
       if (svalue.isDefined) svalue.get.get
       else throw new NoSuchFieldException(s)
     }
-    case Assignment(l,r)                            => {
-      val lvalue = Try(evaluate(store)(l)).getOrElse(Num(0))
+    case Assignment(r,l @ _*)                       => {
+      val lvalue = Try(Cell(evaluate(store)(Select(l.head, l.tail:_*)))).getOrElse(Cell(Num(0)))
       val rvalue = evaluate(store)(r)
-      store(l.variable) = Cell(lvalue.set(rvalue.get))
+
+      val sel = l.dropRight(1).foldLeft(evaluate(store)(l.head))((acc: Value, el: Identifier) =>
+        acc match {
+          case Ins(m) => m.get(el.variable).get.get
+          case Num(v) => throw new NoSuchFieldException(el.variable)
+        }
+      )
+      sel match {
+        case Ins(m) => m(l.last.variable) = lvalue.set(rvalue)
+        case Num(v) => throw new NoSuchFieldException(l.last.variable)
+      }
       Cell.NULL.get
     }
     case Conditional(condExpr, ifBlock, elseBlock @ _*)  => {
       val cvalue = evaluate(store)(condExpr)
-      if (cvalue.get != 0 /*true*/) {
+      if (!Cell.NULL.equals(cvalue) /*true*/) {
         evaluate(store)(ifBlock)
       } else {
-        elseBlock.foldLeft(Cell.NULL.get.asInstanceOf[Value[Int]])((c: Value[Int], s: Expr) => evaluate(store)(s))
+        elseBlock.foldLeft(Cell.NULL.asInstanceOf[Value])((c: Value, s: Expr) => evaluate(store)(s))
       }
     }
     case Loop(condExpr, block)                      => {
       var cvalue = evaluate(store)(condExpr)
-      while (cvalue.get != 0) {
+      while (!Cell.NULL.equals(cvalue)) {
         evaluate(store)(block)
         cvalue = evaluate(store)(condExpr)
       }
       Cell.NULL.get
     }
     case Block(exprs @ _*)                          =>
-      exprs.foldLeft(Cell.NULL.get.asInstanceOf[Value[Int]])((c: Value[Int], s: Expr) => evaluate(store)(s))
+      exprs.foldLeft(Cell.NULL.asInstanceOf[Value])((c: Value, s: Expr) => evaluate(store)(s))
   }
 
 }

@@ -19,11 +19,11 @@ object Calculator extends App {
         import behaviors._
         println("The parsed statements are: ")
         println(toFormattedString(statements))
-        println("The unparsed statements are: ")
-        println(Unparser.unparse(statements))
-        print("It evaluates to ")
-        println(Evaluator.evaluate(statements))
-        println("Memory: " + Evaluator.storeAsString)
+//        println("The unparsed statements are: ")
+//        println(Unparser.unparse(statements))
+//        print("It evaluates to ")
+//        println(Evaluator.evaluate(statements))
+//        println("Memory: " + Evaluator.storeAsString)
     }
   }
 

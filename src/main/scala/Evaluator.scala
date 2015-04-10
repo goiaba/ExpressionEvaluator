@@ -75,10 +75,11 @@ object Evaluator {
     case Div(l, r)                                  => Cell(Num(getNumValue(evaluate(store)(l)) / getNumValue(evaluate(store)(r))))
     case Mod(l, r)                                  => Cell(Num(getNumValue(evaluate(store)(l)) % getNumValue(evaluate(store)(r))))
     case Select(root, selectors @ _*)               => {
+      //Using foldLeft to deep into the Cell's of each selector.
       selectors.foldLeft(evaluate(store)(root))((acc: LValue[Value], el: Identifier) =>
         acc.get match {
           case Ins(m) => Try(m(el.variable)).getOrElse(throw new UndefinedSelectorException(el.variable))
-          case Num(v) => if (acc.equals(acc)) throw new UndefinedSelectorException(el.variable) else acc
+          case Num(v) => throw new UndefinedSelectorException(el.variable)
         }
       )
     }
@@ -94,10 +95,10 @@ object Evaluator {
     }
     case Assignment(r,l @ _*)                       => {
       //Evaluates the right side of the assignment. This will return a Cell[Value] and we must
-      // to set the Value into the left side of the assignment expression
+      // set the Value into the left side of the assignment expression
       val rvalue = evaluate(store)(r)
       //Here we delegate the task of evaluating the possible Select (it may also be a simple Identifier,
-      // but the Select branch now how to deal with both cases) to the Select branch. The select branch
+      // but the Select branch know how to deal with both cases) to the Select branch. The select branch
       // begins calling recursively the evaluate method passing as argument the 'root' identifier. This
       // call may result in an exception.
       Try(evaluate(store)(Select(l.head, l.tail.dropRight(1):_*))) match {

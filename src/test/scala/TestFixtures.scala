@@ -8,8 +8,8 @@ object TestFixtures {
   val singleAssignment =
     Block(
       Assignment(
-        Identifier("x"),
-        Constant(5)
+        Constant(5),
+        Identifier("x")
       )
     )
   val singleAssignmentUnparsedString = "{\n  x = 5;\n}"
@@ -18,7 +18,6 @@ object TestFixtures {
   val complexAssignment =
     Block(
       Assignment(
-        Identifier("x"),
         Div(
           Minus(
             Plus(
@@ -31,7 +30,8 @@ object TestFixtures {
             )
           ),
           Constant(5)
-        )
+        ),
+        Identifier("x")
       )
     )
   val complexAssignmentASTString =
@@ -46,8 +46,8 @@ object TestFixtures {
         Constant(1),
         Block(
           Assignment(
-            Identifier("x"),
-            Constant(2)
+            Constant(2),
+            Identifier("x")
           )
         )
       )
@@ -63,14 +63,14 @@ object TestFixtures {
         Constant(1),
         Block(
           Assignment(
-            Identifier("x"),
-            Constant(2)
+            Constant(2),
+            Identifier("x")
           )
         ),
         Block(
           Assignment(
-            Identifier("x"),
-            Constant(3)
+            Constant(3),
+            Identifier("x")
           )
         )
       )
@@ -87,30 +87,30 @@ object TestFixtures {
         Constant(1),
         Block(
           Assignment(
-            Identifier("x"),
-            Constant(1)
+            Constant(1),
+            Identifier("x")
           )
         ),
         Conditional(
           Constant(2),
           Block(
             Assignment(
-              Identifier("x"),
-              Constant(2)
+              Constant(2),
+              Identifier("x")
             )
           ),
           Conditional(
             Constant(3),
             Block(
               Assignment(
-                Identifier("x"),
-                Constant(3)
+                Constant(3),
+                Identifier("x")
               )
             ),
             Block(
               Assignment(
-                Identifier("x"),
-                Constant(4)
+                Constant(4),
+                Identifier("x")
               )
             )
           )
@@ -146,8 +146,8 @@ object TestFixtures {
             Constant(3),
             Block(
               Assignment(
-                Identifier("x"),
-                Constant(3)
+                Constant(3),
+                Identifier("x")
               )
             )
           ),
@@ -155,20 +155,20 @@ object TestFixtures {
             Identifier("x"),
             Block(
               Assignment(
-                Identifier("x"),
                 Minus(
-                  Identifier("x"),
-                  Constant(1)
-                )
+                    Constant(1),
+                    Identifier("x")
+                ),
+                Identifier("x")
               ),
-              Assignment(
-                Identifier("y"),
-                Constant(5)
+                Assignment(
+                  Constant(5),
+                  Identifier("y")
               ),
               Block(
                 Assignment(
-                  Identifier("xy"),
-                  Constant(88)
+                  Constant(88),
+                  Identifier("xy")
                 )
               )
             )
@@ -180,29 +180,29 @@ object TestFixtures {
           ),
           Block(
             Assignment(
-              Identifier("y"),
               Plus(
-                Plus(
-                  Identifier("x"),
-                  Identifier("y")
-                ),
-                Times(
-                  Identifier("z"),
-                  Constant(3)
-                )
-              )
+                  Plus(
+                      Identifier("x"),
+                      Identifier("y")
+                  ),
+                  Times(
+                      Identifier("z"),
+                      Constant(3)
+                  )
+              ),
+              Identifier("y")
             )
           ),
           Block(
             Assignment(
-              Identifier("xwq"),
               UMinus(
-                Constant(2123)
-              )
+                  Constant(2123)
+              ),
+              Identifier("xwq")
             ),
             Assignment(
-              Identifier("x"),
-              Constant(4)
+              Constant(4),
+              Identifier("x")
             )
           )
         )
@@ -241,17 +241,17 @@ object TestFixtures {
             Constant(0),
             Block(
               Assignment(
-                Identifier("x"),
-                Constant(3)
+                Constant(3),
+                Identifier("x")
               ),
               Assignment(
-                Identifier("y"),
-                Constant(5)
+                Constant(5),
+                Identifier("y")
               ),
               Block(
                 Assignment(
-                  Identifier("xy"),
-                  Constant(88)
+                  Constant(88),
+                  Identifier("xy")
                 )
               )
             )
@@ -266,18 +266,18 @@ object TestFixtures {
   val assignmentWithinBlock =
     Block(
       Assignment(
-        Identifier("r"),
         Plus(
-          Identifier("r"),
-          Identifier("x")
-        )
+            Identifier("r"),
+            Identifier("x")
+        ),
+        Identifier("r")
       ),
       Assignment(
-        Identifier("y"),
         Plus(
           Identifier("y"),
           Constant(1)
-        )
+        ),
+        Identifier("y")
       )
     )
   val assignmentWithinBlockUnparsedString = "{\n  r = (r + x);\n  y = (y + 1);\n}"
@@ -289,18 +289,18 @@ object TestFixtures {
         Constant(4),
         Block(
           Assignment(
-            Identifier("r"),
             Plus(
               Identifier("r"),
               Identifier("x")
-            )
+            ),
+            Identifier("r")
           ),
           Assignment(
-            Identifier("y"),
             Plus(
               Identifier("y"),
               Constant(1)
-            )
+            ),
+            Identifier("y")
           )
         )
       )
@@ -315,18 +315,18 @@ object TestFixtures {
         Identifier("y"),
         Block(
           Assignment(
-            Identifier("r"),
             Plus(
               Identifier("r"),
               Identifier("x")
-            )
+            ),
+            Identifier("r")
           ),
           Assignment(
-            Identifier("y"),
             Minus(
               Identifier("y"),
               Constant(1)
-            )
+            ),
+            Identifier("y")
           )
         )
       )
@@ -378,12 +378,12 @@ object TestFixtures {
   val elseBranch =
     Block(
       Assignment(
-        Identifier("x"),
-        Constant(3)
+        Constant(3),
+        Identifier("x")
       ),
       Assignment(
-        Identifier("y"),
-        Constant(3)
+        Constant(3),
+        Identifier("y")
       ),
       Conditional(
         Mod(
@@ -403,14 +403,14 @@ object TestFixtures {
         ),
         Block(
           Assignment(
-            Identifier("x"),
-            Constant(4)
+            Constant(4),
+            Identifier("x")
           )
         ),
         Block(
           Assignment(
-            Identifier("y"),
-            Constant(5)
+            Constant(5),
+            Identifier("y")
           )
         )
       )
@@ -426,29 +426,29 @@ object TestFixtures {
   val simpleWhile =
     Block(
       Assignment(
-        Identifier("x"),
-        Constant(10)
+        Constant(10),
+        Identifier("x")
       ),
       Assignment(
-        Identifier("y"),
-        Constant(100)
+        Constant(100),
+        Identifier("y")
       ),
       Loop(
         Identifier("x"),
         Block(
           Assignment(
-            Identifier("y"),
             Plus(
               Identifier("y"),
               Identifier("x")
-            )
+            ),
+            Identifier("y")
           ),
           Assignment(
-            Identifier("x"),
             Minus(
               Identifier("x"),
               Constant(1)
-            )
+            ),
+            Identifier("x")
           )
         )
       )

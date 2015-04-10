@@ -1,13 +1,14 @@
 package edu.luc.cs.laufer.cs473.expressions
 
+import edu.luc.cs.laufer.cs473.expressions.Evaluator.{Cell, Num}
 import edu.luc.cs.laufer.cs473.expressions.TestFixtures._
 import org.scalatest.FunSuite
 
 import scala.util.{Success, Failure}
 
 /**
- * Created by sauloaguiar on 3/29/15.
- */
+* Created by sauloaguiar on 3/29/15.
+*/
 object MainEvaluator extends App {
 
 }
@@ -36,7 +37,7 @@ class TestEvaluator extends FunSuite {
 
   test("evaluate works on assignmentWithIf") {
     val result = parserFixture(assignmentWithIfString)
-    assert(result == Success(Num(0)))
+    assert(result === Success(Num(0)))
     assert(Evaluator.memory.get("x").get == Cell(Num(2)))
   }
   test("evaluate works on assignmentWithIfElse") {

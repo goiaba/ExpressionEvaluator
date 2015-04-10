@@ -2,6 +2,7 @@ package edu.luc.cs.laufer.cs473.expressions
 
 import org.parboiled2._
 import ast._
+import scala.collection.mutable.{Map => MMap}
 
 class MiniJSParser(val input: ParserInput) extends org.parboiled2.Parser {
 
@@ -29,7 +30,7 @@ class MiniJSParser(val input: ParserInput) extends org.parboiled2.Parser {
   /** struct ::= "{" "}" | "{" field { "," field }* "}" */
   def Struct = rule {
     ws('{') ~ zeroOrMore(Field).separatedBy(ws(',')) ~ ws('}') ~> ((fields: Seq[Assignment]) => {
-      val map = scala.collection.mutable.Map[String, Expr]()
+      val map = MMap[String, Expr]()
       fields.foreach((field: Assignment) => {
         map(field.left(0).variable) = field.right
       })

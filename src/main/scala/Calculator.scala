@@ -17,13 +17,13 @@ object Calculator extends App {
         println("This statement could not be evaluated: " + error)
       case Success(statements) =>
         import behaviors._
-        println("The parsed statements are: ")
-        println(toFormattedString(statements))
+//        println("The parsed statements are: ")
+//        println(toFormattedString(statements))
 //        println("The unparsed statements are: ")
 //        println(Unparser.unparse(statements))
-//        print("It evaluates to ")
-//        println(Evaluator.evaluate(statements))
-//        println("Memory: " + Evaluator.storeAsString)
+        print("It evaluates to ")
+        println(Evaluator.evaluate(statements))
+        println("Memory: " + Evaluator.storeAsString)
     }
   }
 

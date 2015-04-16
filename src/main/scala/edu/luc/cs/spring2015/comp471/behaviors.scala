@@ -103,5 +103,4 @@ object behaviors {
 
   val EOL = scala.util.Properties.lineSeparator
   val INDENT = ".."
-  val U_INDENT = "  "
 }

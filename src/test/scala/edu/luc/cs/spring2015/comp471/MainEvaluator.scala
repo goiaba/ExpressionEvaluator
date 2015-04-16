@@ -1,10 +1,9 @@
-package edu.luc.cs.laufer.cs473.expressions
+package edu.luc.cs.spring2015.comp471
 
-import edu.luc.cs.laufer.cs473.expressions.Evaluator.{Cell, Num}
-import edu.luc.cs.laufer.cs473.expressions.TestFixtures._
+import edu.luc.cs.spring2015.comp471.Evaluator.{Cell, Num}
+import edu.luc.cs.spring2015.comp471.TestFixtures._
 import org.scalatest.FunSuite
-
-import scala.util.{Success, Failure}
+import scala.util.Success
 
 /**
 * Created by sauloaguiar on 3/29/15.
@@ -30,54 +29,57 @@ class TestEvaluator extends FunSuite {
 
   test("evaluate works on complexAssignment") {
     val result = parserFixture(complexAssignmentString)
-    intercept[java.lang.NoSuchFieldException] {
+    val thrown = intercept[java.lang.NoSuchFieldException] {
       result.get
     }
+    assert(thrown.getMessage === "y2")
   }
 
   test("evaluate works on assignmentWithIf") {
     val result = parserFixture(assignmentWithIfString)
     assert(result === Success(Num(0)))
-    assert(Evaluator.memory.get("x").get == Cell(Num(2)))
+    assert(Evaluator.memory.get("x").get === Cell(Num(2)))
   }
   test("evaluate works on assignmentWithIfElse") {
     val result = parserFixture(assignmentWithIfElseString)
     assert(result == Success(Num(0)))
-    assert(Evaluator.memory.get("x").get == Cell(Num(2)))
+    assert(Evaluator.memory.get("x").get === Cell(Num(2)))
   }
 
   test("evaluate works on ifWithMultipleElseString") {
     val result = parserFixture(ifWithMultipleElseString)
     assert(result == Success(Num(0)))
-    assert(Evaluator.memory.get("x").get == Cell(Num(1)))
+    assert(Evaluator.memory.get("x").get === Cell(Num(1)))
   }
 
   test("evaluate works on assignmentWithinBlock") {
     val result = parserFixture(assignmentWithinBlockString)
-    intercept[java.lang.NoSuchFieldException] {
+    val thrown = intercept[java.lang.NoSuchFieldException] {
       result.get
     }
+    assert(thrown.getMessage === "r")
   }
 
   test("parser works on ifWithDoubleAssignment") {
     val result = parserFixture(ifWithDoubleAssignmentString)
-    intercept[java.lang.NoSuchFieldException] {
+    val thrown = intercept[java.lang.NoSuchFieldException] {
       result.get
     }
+    assert(thrown.getMessage === "r")
   }
 
   test("evaluate works on simpleWhile") {
     val result = parserFixture(simpleWhileString)
     assert(result == Success(Num(0)))
-    assert(Evaluator.memory.get("x").get == Cell(Num(0)))
-    assert(Evaluator.memory.get("y").get == Cell(Num(155)))
+    assert(Evaluator.memory.get("x").get === Cell(Num(0)))
+    assert(Evaluator.memory.get("y").get === Cell(Num(155)))
   }
 
   test("evaluate works on elseBranch") {
     val result = parserFixture(elseBranchString)
     assert(result == Success(Num(0)))
-    assert(Evaluator.memory.get("x").get == Cell(Num(3)))
-    assert(Evaluator.memory.get("y").get == Cell(Num(5)))
+    assert(Evaluator.memory.get("x").get === Cell(Num(3)))
+    assert(Evaluator.memory.get("y").get === Cell(Num(5)))
 
   }
 

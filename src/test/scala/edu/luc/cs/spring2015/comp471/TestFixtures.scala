@@ -1,8 +1,6 @@
-package edu.luc.cs.laufer.cs473.expressions
+package edu.luc.cs.spring2015.comp471
 
 object TestFixtures {
-
-  import ast._
 
   val singleAssignmentString = "x = 5;"
   val singleAssignment =
@@ -156,8 +154,8 @@ object TestFixtures {
             Block(
               Assignment(
                 Minus(
-                    Constant(1),
-                    Identifier("x")
+                  Identifier("x"),
+                  Constant(1)
                 ),
                 Identifier("x")
               ),
@@ -454,4 +452,14 @@ object TestFixtures {
       )
     )
   val simpleWhileUnparsedString = "{\n  x = 10;\n  y = 100;\n  while (x) {\n    y = y + x;\n    x = x - 1;\n  }\n}"
+
+  val emptyStructAssignmentString = "x = {}"
+  val emptyStructAssignment =
+    Block(
+      Assignment(
+        Struct(Map[String, Expr]()),
+        Identifier("x")
+      )
+    )
+  val emptyStructUnparsedAssignment = "{\n  x = {};\n}"
 }

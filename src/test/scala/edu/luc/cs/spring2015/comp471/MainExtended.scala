@@ -1,9 +1,8 @@
-package edu.luc.cs.laufer.cs473.expressions
+package edu.luc.cs.spring2015.comp471
 
-import org.scalatest.FunSuite
-
-import behaviors._
 import TestFixtures._
+import edu.luc.cs.spring2015.comp471.behaviors._
+import org.scalatest.FunSuite
 
 object MainExtended extends App {
   println("p = " + complex1)

@@ -1,7 +1,8 @@
-package edu.luc.cs.laufer.cs473.expressions
+package edu.luc.cs.spring2015.comp471
 
 import jline.console.ConsoleReader
 import org.parboiled2.ParseError
+
 import scala.util.{Failure, Success}
 
 object Calculator extends App {
@@ -16,9 +17,9 @@ object Calculator extends App {
       case Failure(error) =>
         println("This statement could not be evaluated: " + error)
       case Success(statements) =>
-        import behaviors._
-//        println("The parsed statements are: ")
-//        println(toFormattedString(statements))
+        import edu.luc.cs.spring2015.comp471.behaviors._
+        println("The parsed statements are: ")
+        println(toFormattedString(statements))
 //        println("The unparsed statements are: ")
 //        println(Unparser.unparse(statements))
         print("It evaluates to ")

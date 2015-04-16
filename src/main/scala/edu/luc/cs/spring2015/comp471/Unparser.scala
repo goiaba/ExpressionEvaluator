@@ -1,6 +1,5 @@
-package edu.luc.cs.laufer.cs473.expressions
+package edu.luc.cs.spring2015.comp471
 
-import edu.luc.cs.laufer.cs473.expressions.ast._
 import scala.collection.mutable.Set
 
 trait Attributes
@@ -36,7 +35,7 @@ object Unparser {
   private def toUnparsedString(prefix: String)(e: Expr): String = e match {
     case Identifier(s)    => prefix + s
     case Constant(c)      => prefix + c.toString
-    case Assignment(l, r) => toUnparsedString(prefix)(l) + " = " + toUnparsedString("")(r)
+    case Assignment(r, l) => toUnparsedString(prefix)(l) + " = " + toUnparsedString("")(r)
     case UMinus(r)        => prefix + "-" + toUnparsedString("")(r)
     case Plus(l,r)        => buildUnparsedBinaryExpr(prefix, l, " + ", r)
     case Minus(l,r)       => buildUnparsedBinaryExpr(prefix, l, " - ", r)
@@ -86,6 +85,9 @@ object Unparser {
       sa.remove(Semicolon)
       sb.toString
     }
+    case Select(root, selectors @ _*) =>
+      prefix + toUnparsedString("")(root) + "." + selectors.map((el: Identifier) => toUnparsedString("")(el)).mkString(".")
+    case Struct(m) => ""
   }
 
   val EOL = scala.util.Properties.lineSeparator

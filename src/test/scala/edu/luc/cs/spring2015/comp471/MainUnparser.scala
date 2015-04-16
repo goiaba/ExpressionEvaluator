@@ -1,8 +1,7 @@
-package edu.luc.cs.laufer.cs473.expressions
+package edu.luc.cs.spring2015.comp471
 
-import edu.luc.cs.laufer.cs473.expressions.TestFixtures._
+import TestFixtures._
 import org.scalatest.FunSuite
-import behaviors._
 
 /**
  * Created by bruno on 3/23/15.

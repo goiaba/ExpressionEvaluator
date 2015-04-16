@@ -1,9 +1,8 @@
-package edu.luc.cs.laufer.cs473.expressions
+package edu.luc.cs.spring2015.comp471
 
+import TestFixtures._
+import edu.luc.cs.spring2015.comp471.behaviors._
 import org.scalatest.FunSuite
-
-import edu.luc.cs.laufer.cs473.expressions.TestFixtures._
-import behaviors._
 
 object MainParser extends App {
   val parsedExpr = new MiniJSParser(complex1String).InputLine.run()

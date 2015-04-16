@@ -1,8 +1,7 @@
-package edu.luc.cs.laufer.cs473.expressions
+package edu.luc.cs.spring2015.comp471
 
-import edu.luc.cs.laufer.cs473.expressions.ast._
-import scala.util.{Failure, Success, Try}
 import scala.collection.mutable.{Map => MMap}
+import scala.util.{Failure, Success, Try}
 
 /**
  * Created by bruno on 3/28/15.
@@ -59,35 +58,49 @@ object Evaluator {
 
   def memory = store.toMap
 
-  def getNumValue(v: LValue[Value]): Int = v.get match {
-    case Num(value) => value
-    case _ => throw new RuntimeException("Wrong type")
-  }
+//  def getNumValue(v: LValue[Value]): Int = v.get match {
+//    case Num(value) => value
+//    case _ => throw new RuntimeException("Wrong type")
+//  }
+
+  def getNumValue(v: LValue[Value]): Int =
+    v.get.asInstanceOf[Num].value
 
   def evaluate(expr: Expr): Try[Value] = { Try(evaluate(store)(expr).get) }
 
   def evaluate(store: Store)(expr: Expr): LValue[Value] = expr match {
-    case Constant(c)                                => Cell(Num(c))
-    case UMinus(r)                                  => Cell(Num(-getNumValue(evaluate(store)(r))))
-    case Plus(l, r)                                 => Cell(Num(getNumValue(evaluate(store)(l)) + getNumValue(evaluate(store)(r))))
-    case Minus(l, r)                                => Cell(Num(getNumValue(evaluate(store)(l)) - getNumValue(evaluate(store)(r))))
-    case Times(l, r)                                => Cell(Num(getNumValue(evaluate(store)(l)) * getNumValue(evaluate(store)(r))))
-    case Div(l, r)                                  => Cell(Num(getNumValue(evaluate(store)(l)) / getNumValue(evaluate(store)(r))))
-    case Mod(l, r)                                  => Cell(Num(getNumValue(evaluate(store)(l)) % getNumValue(evaluate(store)(r))))
-    case Select(root, selectors @ _*)               => {
+    case Constant(c)                                =>
+      Cell(Num(c))
+    case UMinus(r)                                  =>
+      Cell(Num(-getNumValue(evaluate(store)(r))))
+    case Plus(l, r)                                 =>
+      Cell(Num(getNumValue(evaluate(store)(l)) + getNumValue(evaluate(store)(r))))
+    case Minus(l, r)                                =>
+      Cell(Num(getNumValue(evaluate(store)(l)) - getNumValue(evaluate(store)(r))))
+    case Times(l, r)                                =>
+      Cell(Num(getNumValue(evaluate(store)(l)) * getNumValue(evaluate(store)(r))))
+    case Div(l, r)                                  =>
+      Cell(Num(getNumValue(evaluate(store)(l)) / getNumValue(evaluate(store)(r))))
+    case Mod(l, r)                                  =>
+      Cell(Num(getNumValue(evaluate(store)(l)) % getNumValue(evaluate(store)(r))))
+    case Select(root, selectors @ _*)               =>
       //Using foldLeft to deep into the Cell's of each selector.
+      //The idea here is iterate over the list of selectors and return the Cell
+      //to which the last identifier of the list points to. The match inside the
+      //fold left is over the acc. It works because a Num must always be the
+      //leaf, the last element of the list of selectors. Otherwise, we would be
+      //looking for a selector inside a Num and that makes no sense.
       selectors.foldLeft(evaluate(store)(root))((acc: LValue[Value], el: Identifier) =>
         acc.get match {
           case Ins(m) => Try(m(el.variable)).getOrElse(throw new UndefinedSelectorException(el.variable))
           case Num(v) => throw new UndefinedSelectorException(el.variable)
         }
       )
-    }
-    case Struct(m)                                  => {
-     m.foldLeft(Cell(Ins(MMap[String, LValue[Value]]())))((acc, kv) =>
-      { acc.get.value(kv._1) = evaluate(acc.get.value)(kv._2); acc })
-     .asInstanceOf[LValue[Value]]
-    }
+    case Struct(m)                                  =>
+     m.foldLeft(Cell(Ins(MMap[String, LValue[Value]]())))((acc, kv) => {
+        acc.get.value(kv._1) = evaluate(acc.get.value)(kv._2)
+        acc
+      }).asInstanceOf[LValue[Value]]
     case Identifier(s)                              => {
       val svalue = store.get(s)
       if (svalue.isDefined) svalue.get
@@ -103,20 +116,24 @@ object Evaluator {
       // call may result in an exception.
       Try(evaluate(store)(Select(l.head, l.tail.dropRight(1):_*))) match {
         case Success(cell) =>
+          //Simple identifier (root).
           if (l.tail.isEmpty) cell.set(rvalue.get)
+           //Selection.
           else cell.get match {
+            //In this case must store the assigned value inside of an structure (map)
             case Ins(m) => m(l.last.variable) = rvalue
+              //Otherwise we just ignore the value and set the rvalue into the cell
             case Num(v) => cell.set(Ins(MMap[String, LValue[Value]](l.last.variable -> rvalue)))
           }
         case Failure(ex: NoSuchFieldException) =>
           if (l.tail.isEmpty) store(l.head.variable) = Cell(rvalue.get)
           else throw ex
-        case Failure(ex: UndefinedSelectorException) => throw ex
+        case Failure(ex) => throw ex
       }
       Cell.NULL
     }
-    case Conditional(condExpr, ifBlock, elseBlock @ _*)  => {
-      val cvalue = evaluate(store)(condExpr)
+    case Conditional(cnd, ifBlock, elseBlock @ _*)  => {
+      val cvalue = evaluate(store)(cnd)
       if (!Cell.NULL.equals(cvalue) /*true*/) {
         evaluate(store)(ifBlock)
       } else {

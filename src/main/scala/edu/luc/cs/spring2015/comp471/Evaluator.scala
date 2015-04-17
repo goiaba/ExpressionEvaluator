@@ -17,7 +17,7 @@ class UndefinedSelectorException(msg: String) extends RuntimeException(msg)
 
 object Evaluator {
 
-  type Store = MMap[String, LValue[Value]]
+  type Store = MMap[String, Cell[Value]]
 
   trait Value
   case class Num(value: Int) extends Value
@@ -40,7 +40,7 @@ object Evaluator {
   /**
    * A cell for storing a value.
    */
-  case class Cell[T](var value: T) extends LValue[T] {
+  case class Cell[T <: Value](var value: T) extends LValue[T] {
     override def get = value
     override def set(value: T) = { this.value = value; this }
   }
@@ -49,26 +49,20 @@ object Evaluator {
    * A companion object defining a useful Cell instance.
    */
   object Cell {
-    val NULL = Cell(Num(0)).asInstanceOf[LValue[Value]]
+    val NULL = Cell(Num(0)).asInstanceOf[Cell[Value]]
   }
 
-  private val store: Store = MMap[String, LValue[Value]]()
+  private val store: Store = MMap[String, Cell[Value]]()
 
-  def storeAsString = "Map" + store.mkString("(",", ",")")
+  def memoryAsString = store.mkString("Map(",", ",")")
 
   def memory = store.toMap
 
-//  def getNumValue(v: LValue[Value]): Int = v.get match {
-//    case Num(value) => value
-//    case _ => throw new RuntimeException("Wrong type")
-//  }
-
-  def getNumValue(v: LValue[Value]): Int =
-    v.get.asInstanceOf[Num].value
+  def clearMemory = store.clear()
 
   def evaluate(expr: Expr): Try[Value] = { Try(evaluate(store)(expr).get) }
 
-  def evaluate(store: Store)(expr: Expr): LValue[Value] = expr match {
+  private def evaluate(store: Store)(expr: Expr): Cell[Value] = expr match {
     case Constant(c)                                =>
       Cell(Num(c))
     case UMinus(r)                                  =>
@@ -90,17 +84,17 @@ object Evaluator {
       //fold left is over the acc. It works because a Num must always be the
       //leaf, the last element of the list of selectors. Otherwise, we would be
       //looking for a selector inside a Num and that makes no sense.
-      selectors.foldLeft(evaluate(store)(root))((acc: LValue[Value], el: Identifier) =>
+      selectors.foldLeft(evaluate(store)(root))((acc: Cell[Value], el: Identifier) =>
         acc.get match {
           case Ins(m) => Try(m(el.variable)).getOrElse(throw new UndefinedSelectorException(el.variable))
           case Num(v) => throw new UndefinedSelectorException(el.variable)
         }
       )
     case Struct(m)                                  =>
-     m.foldLeft(Cell(Ins(MMap[String, LValue[Value]]())))((acc, kv) => {
+     m.foldLeft(Cell(Ins(MMap[String, Cell[Value]]())))((acc, kv) => {
         acc.get.value(kv._1) = evaluate(acc.get.value)(kv._2)
         acc
-      }).asInstanceOf[LValue[Value]]
+      }).asInstanceOf[Cell[Value]]
     case Identifier(s)                              => {
       val svalue = store.get(s)
       if (svalue.isDefined) svalue.get
@@ -112,7 +106,7 @@ object Evaluator {
       val rvalue = evaluate(store)(r)
       //Here we delegate the task of evaluating the possible Select (it may also be a simple Identifier,
       // but the Select branch know how to deal with both cases) to the Select branch. The select branch
-      // begins calling recursively the evaluate method passing as argument the 'root' identifier. This
+      // starts calling recursively the evaluate method passing as argument the 'root' identifier. This
       // call may result in an exception.
       Try(evaluate(store)(Select(l.head, l.tail.dropRight(1):_*))) match {
         case Success(cell) =>
@@ -122,8 +116,8 @@ object Evaluator {
           else cell.get match {
             //In this case must store the assigned value inside of an structure (map)
             case Ins(m) => m(l.last.variable) = rvalue
-              //Otherwise we just ignore the value and set the rvalue into the cell
-            case Num(v) => cell.set(Ins(MMap[String, LValue[Value]](l.last.variable -> rvalue)))
+            //Otherwise we just ignore the value and set the rvalue into the cell
+            case Num(v) => cell.set(Ins(MMap[String, Cell[Value]](l.last.variable -> rvalue)))
           }
         case Failure(ex: NoSuchFieldException) =>
           if (l.tail.isEmpty) store(l.head.variable) = Cell(rvalue.get)
@@ -137,7 +131,7 @@ object Evaluator {
       if (!Cell.NULL.equals(cvalue) /*true*/) {
         evaluate(store)(ifBlock)
       } else {
-        elseBlock.foldLeft(Cell.NULL)((c: LValue[Value], s: Expr) => evaluate(store)(s))
+        elseBlock.foldLeft(Cell.NULL)((c: Cell[Value], s: Expr) => evaluate(store)(s))
       }
     }
     case Loop(condExpr, block)                      => {
@@ -149,7 +143,9 @@ object Evaluator {
       Cell.NULL
     }
     case Block(exprs @ _*)                          =>
-      exprs.foldLeft(Cell.NULL)((c: LValue[Value], s: Expr) => evaluate(store)(s))
+      exprs.foldLeft(Cell.NULL)((c: Cell[Value], s: Expr) => evaluate(store)(s))
   }
+
+  private def getNumValue(v: Cell[Value]): Int = v.get.asInstanceOf[Num].value
 
 }

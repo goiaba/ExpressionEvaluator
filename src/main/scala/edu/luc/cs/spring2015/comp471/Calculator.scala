@@ -24,7 +24,7 @@ object Calculator extends App {
 //        println(Unparser.unparse(statements))
         print("It evaluates to ")
         println(Evaluator.evaluate(statements))
-        println("Memory: " + Evaluator.storeAsString)
+        println("Memory: " + Evaluator.memoryAsString)
     }
   }
 
@@ -34,7 +34,7 @@ object Calculator extends App {
   val console = new ConsoleReader()
   console.setPrompt("minic> ")
   println("Enter the expressions and press <enter> to parse your input (multiline expressions allowed inside blocks)")
-  println("Memory: " + Evaluator.storeAsString)
+  println("Memory: " + Evaluator.memoryAsString)
 
   if (args.length > 0) {
     processStatements(args mkString " ")

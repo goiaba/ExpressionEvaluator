@@ -6,23 +6,15 @@ import org.scalatest.FunSuite
 
 object MainExtended extends App {
   println("p = " + complex1)
-//  println("evaluate(p) = " + evaluate(complex1))
-//  println("size(p) = " + size(complex1))
   println("depth(p) = " + depth(complex1))
   println(toFormattedString(complex1))
   println("q = " + complex2)
-//  println("evaluate(q) = " + evaluate(complex2))
-//  println("size(q) = " + size(complex2))
   println("depth(q) = " + depth(complex2))
   println(toFormattedString(complex2))
 }
 
 class TestExtended extends FunSuite {
-//  test("evaluate(p)") { assert(evaluate(complex1) === -1) }
-//  test("size(p)") { assert(size(complex1) === 9) }
   test("depth(p)") { assert(depth(complex1) === 5) }
-//  test("evaluate(q)") { assert(evaluate(complex2) === 0) }
-//  test("size(q)") { assert(size(complex2) === 10) }
   test("depth(q)") { assert(depth(complex2) === 6) }
   test("depth(singleAssignment)") { assert(depth(singleAssignment) === 3) }
   test("depth(complexAssignment)") { assert(depth(complexAssignment) === 6) }
@@ -33,4 +25,6 @@ class TestExtended extends FunSuite {
   test("depth(ifWithDoubleAssignment)") { assert(depth(ifWithDoubleAssignment) === 6) }
   test("depth(whileLoop1)") { assert(depth(whileLoop1) === 6) }
   test("depth(trelloExample)") { assert(depth(trelloExample) === 8) }
+  test("depth(tryingToAssignNumAsIns)") { assert(depth(tryingToAssignNumAsIns) === 4) }
+
 }

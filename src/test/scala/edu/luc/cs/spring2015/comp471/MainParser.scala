@@ -43,15 +43,55 @@ class TestParser extends FunSuite {
     assert(parsed === trelloExampleModified)
     assert(toFormattedString(parsed) === trelloExampleModifiedASTString)
   }
-  test("parser works on assignmentWithinBlock") { assert(new MiniJSParser(assignmentWithinBlockString).InputLine.run().get === assignmentWithinBlock) }
-  test("parser works on ifWithDoubleAssignment") { assert(new MiniJSParser(ifWithDoubleAssignmentString).InputLine.run().get === ifWithDoubleAssignment) }
-  test("parser works on whileLoop1") { assert(new MiniJSParser(whileLoop1String1).InputLine.run().get === whileLoop1) }
-  test("parser works on whileLoop2") { assert(new MiniJSParser(whileLoop1String2).InputLine.run().get === whileLoop1) }
-  test("parser works on trelloExample") { assert(new MiniJSParser(trelloExampleString).InputLine.run().get === trelloExample) }
+  test("parser works on assignmentWithinBlock") {
+    assert(new MiniJSParser(assignmentWithinBlockString).InputLine.run().get === assignmentWithinBlock)
+  }
+  test("parser works on ifWithDoubleAssignment") {
+    assert(new MiniJSParser(ifWithDoubleAssignmentString).InputLine.run().get === ifWithDoubleAssignment)
+  }
+  test("parser works on whileLoop1") {
+    assert(new MiniJSParser(whileLoop1String1).InputLine.run().get === whileLoop1)
+  }
+  test("parser works on whileLoop2") {
+    assert(new MiniJSParser(whileLoop1String2).InputLine.run().get === whileLoop1)
+  }
+  test("parser works on trelloExample") {
+    assert(new MiniJSParser(trelloExampleString).InputLine.run().get === trelloExample)
+  }
   test("parser works on elseBranch") {
     val parsed = new MiniJSParser(elseBranchString).InputLine.run().get
     assert(parsed === elseBranch)
     assert(toFormattedString(parsed) === elseBranchASTString)
+  }
+
+  test("parser works on emptyStructAssignment") {
+    val parsed = new MiniJSParser(emptyStructAssignmentString).InputLine.run().get
+    assert(parsed === emptyStructAssignment)
+    assert(toFormattedString(parsed) === emptyStructAssignmentASTString)
+  }
+
+  test("parser works on simpleStructAssignment") {
+    val parsed = new MiniJSParser(simpleStructString).InputLine.run().get
+    assert(parsed === simpleStruct)
+    assert(toFormattedString(parsed) === simpleStructASTString)
+  }
+
+  test("parser works on complexStruct") {
+    val parsed = new MiniJSParser(complexStructString).InputLine.run().get
+    assert(parsed === complexStruct)
+    assert(toFormattedString(parsed) === complexStructASTString)
+  }
+
+  test("parser works on tryingToAccessSelectorNumAsIns") {
+    val parsed = new MiniJSParser(tryingToAccessSelectorNumAsInsString).InputLine.run().get
+    assert(parsed === tryingToAccessSelectorNumAsIns)
+    assert(toFormattedString(parsed) === tryingToAccessSelectorNumAsInsASTString)
+  }
+
+  test("parser works on tryingToAssignNumAsIns") {
+    val parsed = new MiniJSParser(tryingToAssignNumAsInsString).InputLine.run().get
+    assert(parsed === tryingToAssignNumAsIns)
+    assert(toFormattedString(parsed) === tryingToAssignNumAsInsASTString)
   }
 }
 

@@ -13,7 +13,7 @@ object behaviors {
     case Div(l, r)                          => 1 + math.max(depth(l), depth(r))
     case Mod(l, r)                          => 1 + math.max(depth(l), depth(r))
     case Identifier(s)                      => 1
-    case Assignment(l,r)                    => 1 + math.max(depth(l), depth(r))
+    case Assignment(r,l @ _*)               => 1 + math.max(depth(Select(l.head, l.tail:_*)), depth(r))
     case Conditional(cnd, ifB, elseBs @ _*) => 1 + math.max(depth(ifB), util.Try(elseBs.map((expr: Expr) => depth(expr)).max).getOrElse(0))
     case Loop(condExpr, block)              => 1 + depth(block)
     case Block(exprs @ _*)                  => 1 + util.Try(exprs.map((expr: Expr) => depth(expr)).max).getOrElse(0)

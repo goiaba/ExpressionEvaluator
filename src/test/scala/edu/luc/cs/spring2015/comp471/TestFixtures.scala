@@ -1,5 +1,8 @@
 package edu.luc.cs.spring2015.comp471
 
+import edu.luc.cs.spring2015.comp471.Evaluator.{Value, Num, Ins, Cell}
+import scala.collection.mutable.{Map => MMap}
+
 object TestFixtures {
 
   val singleAssignmentString = "x = 5;"
@@ -453,7 +456,7 @@ object TestFixtures {
     )
   val simpleWhileUnparsedString = "{\n  x = 10;\n  y = 100;\n  while (x) {\n    y = y + x;\n    x = x - 1;\n  }\n}"
 
-  val emptyStructAssignmentString = "x = {}"
+  val emptyStructAssignmentString = "x = {};"
   val emptyStructAssignment =
     Block(
       Assignment(
@@ -461,5 +464,156 @@ object TestFixtures {
         Identifier("x")
       )
     )
-  val emptyStructUnparsedAssignment = "{\n  x = {};\n}"
+  val emptyStructAssignmentASTString = "Block(\n..Assignment(\n....x, \n....Struct(\n)))"
+  val emptyStructAssignmentUnparsed = "{\n  x = {};\n}"
+
+  val simpleStructString = "x={a:3};"
+  val simpleStruct =
+    Block(
+      Assignment(
+        Struct(
+          Map[String, Expr]("a" -> Constant(3))
+        ),
+        Identifier("x")
+      )
+    )
+  val simpleStructASTString = "Block(\n..Assignment(\n....x, \n....Struct(\n......Assignment(\n........a, \n........3))))"
+  val simpleStructUnparsedString = "x = { a : 3 };"
+
+  val complexStructString = "x=        { a :      { b :5},c:13};"
+  val complexStruct =
+    Block(
+      Assignment(
+        Struct(
+          Map[String, Expr](
+            "a" -> Struct(
+              Map[String, Expr]("b" -> Constant(5))
+            ),
+            "c" -> Constant(13)
+          )
+        ),
+        Identifier("x")
+      )
+    )
+  val complexStructASTString = "Block(\n..Assignment(\n....x, \n....Struct(\n......Assignment(\n........a, \n" +
+    "........Struct(\n..........Assignment(\n............b, \n............5))),\n......Assignment(\n........c, \n" +
+    "........13))))"
+  val complexStructUnparsedString = "{\n  x = { a : { b : 5 }, c : 13 }\n}"
+
+  val complexStructWithAssignment1String = "x = {a : {b: {c:3}}, d:13};"
+  def complexStructWithAssignment1Memory = {
+    val d = Cell(Num(13))
+    val c = Cell(Num(3))
+    val b = Cell(Ins(MMap[String, Cell[_]]("c" -> c).asInstanceOf[Evaluator.Store]))
+    val a = Cell(Ins(MMap[String, Cell[_]]("b" -> b).asInstanceOf[Evaluator.Store]))
+    val x = Cell(Ins(MMap[String, Cell[_]]("a" -> a, "d" -> d).asInstanceOf[Evaluator.Store]))
+    x
+  }
+  val complexStructWithAssignment1 =
+    Block(
+      Assignment(
+        Struct(
+          Map[String, Expr](
+            "a" -> Struct(
+              Map[String, Expr](
+                "b" -> Struct(
+                  Map[String, Expr](
+                    "c" -> Constant(3)
+                  )
+                )
+              )
+            ),
+            "d" -> Constant(13)
+          )
+        ),
+        Identifier("x")
+      )
+    )
+
+  val complexStructWithAssignment2String = "x = {a : {b: {c:3}}, d:13}; z = x;"
+  val complexStructWithAssignment2Memory = complexStructWithAssignment1Memory
+  val complexStructWithAssignment2 =
+    Block(
+      Assignment(
+        Identifier("x"),
+        Identifier("z")
+      )
+    )
+
+  val complexStructWithAssignment3String = "x = {a : {b: {c:3}}, d:13}; z = x; z.a.b.c = 4;"
+  val complexStructWithAssignment3Memory = {
+    val xCell = complexStructWithAssignment1Memory
+    val aCell = xCell.get.value.get("a").get
+    val bCell = aCell.get.asInstanceOf[Ins].value.get("b").get
+    val cCell = bCell.get.asInstanceOf[Ins].value.get("c").get
+    cCell.set(Num(4))
+    xCell
+  }
+  val complexStructWithAssignment3 =
+    Block(
+      Assignment(
+        Constant(4),
+        Identifier("x"),
+        Identifier("a"),
+        Identifier("b"),
+        Identifier("c")
+      )
+    )
+
+  val undefinedSelectorString = "x={}; x.z;"
+
+  val undefinedFieldTryingToAccessSelectorString = "x.z;"
+
+  val undefinedFieldTryingToAssignValueToSelectorString = "x.z = 3;"
+
+  val tryingToAccessSelectorNumAsInsString = "x={z:3}; x.z.y;"
+  val tryingToAccessSelectorNumAsIns =
+    Block(
+      Assignment(
+        Struct(
+          Map[String, Expr](
+            "z" -> Constant(3)
+          )
+        ),
+        Identifier("x")
+      ),
+      Select(
+        Identifier("x"),
+        Identifier("z"),
+        Identifier("y")
+      )
+    )
+  val tryingToAccessSelectorNumAsInsASTString = "Block(\n..Assignment(\n....x, \n....Struct(\n......Assignment(\n" +
+    "........z, \n........3))),\n..x.z.y)"
+
+  val tryingToAssignToUndefinedSelectorString = "x={z:{w:3}}; x.z.w.k.y = 4;"
+
+  val tryingToAssignNumAsInsString = "x={z:3}; x.z.y = 10; x.z.y;"
+  val tryingToAssignNumAsIns =
+    Block(
+      Assignment(
+        Struct(
+          Map[String, Expr](
+            "z" -> Constant(3)
+          )
+        ),
+        Identifier("x")
+      ),
+      Assignment(
+        Constant(10),
+        Identifier("x"),
+        Identifier("z"),
+        Identifier("y")
+      ),
+      Select(
+        Identifier("x"),
+        Identifier("z"),
+        Identifier("y")
+      )
+    )
+  val tryingToAssignNumAsInsASTString = "Block(\n..Assignment(\n....x, \n....Struct(\n......Assignment(\n........z, \n" +
+    "........3))),\n..Assignment(\n....x.z.y, \n....10),\n..x.z.y)"
+
+  val tryingToAssignValueToUndefinedSelectorString = "x={z:3}; x.w = 3;"
+
 }

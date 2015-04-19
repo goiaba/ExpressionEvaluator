@@ -56,11 +56,16 @@ object behaviors {
 
   def buildSelectorString(prefix: String, nodeString: String, root: Expr, selectors: Identifier*) = {
     val result = new StringBuilder()
-    result.append(toFormattedString(prefix)(root))
+    result.append(prefix)
+    result.append(nodeString)
+    result.append("(")
+    result.append(toFormattedString("")(root))
     result.append(".")
     result.append(selectors.map((el: Identifier) => toFormattedString("")(el)).mkString("."))
+    result.append(")")
     result.toString
   }
+
 
   def buildConditionalString(prefix: String, nodeString: String, cnd: Expr, ifB: Expr, elseBs: Expr*) = {
     val result = new StringBuilder(prefix).append(nodeString).append("(").append(EOL)

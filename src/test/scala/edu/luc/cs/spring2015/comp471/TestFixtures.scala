@@ -618,15 +618,55 @@ object TestFixtures {
   val tryingToAssignValueToUndefinedSelectorString = "x={z:3}; x.w = 3;"
   val emptyStructUnparsedAssignment = "{\n  x = {};\n}"
 
-  val simpleStructAssignmentString = "a = {b:1, c:2, d:{e:1, f:2}};"
-
+  val simpleStructAssignmentString = "a = {b : 1};"
   val simpleStructAssignment =
     Block(
       Assignment(
-        Struct(Map[String, Expr]()),
+        Struct(Map[String, Expr](
+        "b" -> Constant(1)
+        )),
         Identifier("a")
       )
     )
-  val simpleStructAssignmentUnparsedString = "{\n  a = {b : 1, d : {e : 1, f : 2}, c : 2};\n}"
+  val simpleStructAssignmentUnparsedString = "{\n  a = {b : 1};\n}"
 
+  val nestedStructAssignmentString = "a = {b:1, c:2, d:{e:1, f:2}};"
+  val nestedStructAssignment =
+    Block(
+      Assignment(
+        Struct(Map[String, Expr](
+          "b" -> Constant(1),
+          "c" -> Constant(2),
+          "d" -> Struct(Map[String, Expr](
+            "e" -> Constant(1),
+            "f" -> Constant(2)
+          ))
+        )),
+        Identifier("a")
+      )
+    )
+
+  val nestedStructAssignmentUnparsedString = "{\n  a = {b : 1, c : 2, d : {e : 1, f : 2}};\n}"
+
+  val simpleSelectString = "a.b;"
+  val simpleSelect =
+    Block(
+      Select(
+        Identifier("a"),
+        Identifier("b")
+      )
+    )
+
+  val simpleSelectUnparsedString = "{\n  a.b;\n}"
+
+  val anotherSelectString = "a.b.c;"
+  val anotherSelect =
+    Block(
+      Select(
+        Identifier("a"),
+        Identifier("b"), Identifier("c")
+      )
+    )
+
+  val anotherSelectUnparsedString = "{\n  a.b.c;\n}";
 }

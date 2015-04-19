@@ -80,13 +80,17 @@ object Evaluator {
     case Select(root, selectors @ _*)               =>
       //Using foldLeft to deep into the Cell's of each selector.
       //The idea here is iterate over the list of selectors and return the Cell
-      //to which the last identifier of the list points to. The match inside the
-      //fold left is over the acc. It works because a Num must always be the
-      //leaf, the last element of the list of selectors. Otherwise, we would be
-      //looking for a selector inside a Num and that makes no sense.
+      // to which the last identifier of the list points to. The match inside the
+      // fold left is over the acc. So it evaluates until the last but one el
+      // (identifier). If this penultimate identifier points to a Ins then we
+      // try to get the last identifier (el.variable) from the map. If it does
+      // not exists an exception is thrown. If the penultimate identifier points
+      // to a Num then we have a problem, as we still have the last identifier
+      // and a Num must have a number, not an Ins.
       selectors.foldLeft(evaluate(store)(root))((acc: Cell[Value], el: Identifier) =>
         acc.get match {
-          case Ins(m) => Try(m(el.variable)).getOrElse(throw new UndefinedSelectorException(el.variable))
+          case Ins(m) => Try(m(el.variable))
+            .getOrElse(throw new UndefinedSelectorException(el.variable))
           case Num(v) => throw new UndefinedSelectorException(el.variable)
         }
       )
@@ -101,23 +105,25 @@ object Evaluator {
       else throw new NoSuchFieldException(s)
     }
     case Assignment(r,l @ _*)                       => {
-      //Evaluates the right side of the assignment. This will return a Cell[Value] and we must
-      // set the Value into the left side of the assignment expression
+      //Evaluates the right side of the assignment. This will return a Cell[Value]
+      // and we must set the Value into the left side of the assignment expression
       val rvalue = evaluate(store)(r)
-      //Here we delegate the task of evaluating the possible Select (it may also be a simple Identifier,
-      // but the Select branch know how to deal with both cases) to the Select branch. The select branch
-      // starts calling recursively the evaluate method passing as argument the 'root' identifier. This
-      // call may result in an exception.
+      //Here we delegate the task of evaluating the possible Select (it may also
+      // be a simple Identifier, but the Select branch know how to deal with both
+      // cases) to the Select branch. The select branch starts calling recursively
+      // the evaluate method passing as argument the 'root' identifier. This call
+      // may result in an exception.
       Try(evaluate(store)(Select(l.head, l.tail.dropRight(1):_*))) match {
         case Success(cell) =>
-          //Simple identifier (root).
+          //Simple identifier (root variable).
           if (l.tail.isEmpty) cell.set(rvalue.get)
            //Selection.
           else cell.get match {
-            //In this case must store the assigned value inside of an structure (map)
+            //In this case we must store the assigned value inside a structure (map)
             case Ins(m) => m(l.last.variable) = rvalue
-            //Otherwise we just ignore the value and set the rvalue into the cell
-            case Num(v) => cell.set(Ins(MMap[String, Cell[Value]](l.last.variable -> rvalue)))
+            //Otherwise we throw an exception because we are trying to create a new
+            // variable and assign it to a Num.
+            case Num(v) => throw new UndefinedSelectorException(l.last.variable)
           }
         case Failure(ex: NoSuchFieldException) =>
           if (l.tail.isEmpty) store(l.head.variable) = Cell(rvalue.get)

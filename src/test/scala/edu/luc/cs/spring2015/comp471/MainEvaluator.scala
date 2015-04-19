@@ -127,7 +127,10 @@ class TestEvaluator extends FunSuite {
 
   test("evaluate works on tryingToAssignNumAsIns") {
     val result = parserFixture(tryingToAssignNumAsInsString)
-    assert(result === Success(Num(10)))
+    val thrown = intercept[UndefinedSelectorException] {
+      result.get
+    }
+    assert(thrown.getMessage === "y")
   }
 
   test("evaluate works on tryingToAssignToUndefinedSelector") {

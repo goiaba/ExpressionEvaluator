@@ -20,8 +20,8 @@ object Calculator extends App {
         import edu.luc.cs.spring2015.comp471.behaviors._
         println("The parsed statements are: ")
         println(toFormattedString(statements))
-//        println("The unparsed statements are: ")
-//        println(Unparser.unparse(statements))
+        println("The unparsed statements are: ")
+        println(Unparser.unparse(statements))
         print("It evaluates to ")
         println(Evaluator.evaluate(statements))
         println("Memory: " + Evaluator.memoryAsString)

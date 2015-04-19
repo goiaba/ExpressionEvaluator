@@ -464,6 +464,7 @@ object TestFixtures {
         Identifier("x")
       )
     )
+
   val emptyStructAssignmentASTString = "Block(\n..Assignment(\n....x, \n....Struct(\n)))"
   val emptyStructAssignmentUnparsed = "{\n  x = {};\n}"
 
@@ -584,7 +585,7 @@ object TestFixtures {
       )
     )
   val tryingToAccessSelectorNumAsInsASTString = "Block(\n..Assignment(\n....x, \n....Struct(\n......Assignment(\n" +
-    "........z, \n........3))),\n..x.z.y)"
+    "........z, \n........3))),\n..Select(x.z.y))"
 
   val tryingToAssignToUndefinedSelectorString = "x={z:{w:3}}; x.z.w.k.y = 4;"
 
@@ -612,8 +613,20 @@ object TestFixtures {
       )
     )
   val tryingToAssignNumAsInsASTString = "Block(\n..Assignment(\n....x, \n....Struct(\n......Assignment(\n........z, \n" +
-    "........3))),\n..Assignment(\n....x.z.y, \n....10),\n..x.z.y)"
+    "........3))),\n..Assignment(\n....Select(x.z.y), \n....10),\n..Select(x.z.y))"
 
   val tryingToAssignValueToUndefinedSelectorString = "x={z:3}; x.w = 3;"
+  val emptyStructUnparsedAssignment = "{\n  x = {};\n}"
+
+  val simpleStructAssignmentString = "a = {b:1, c:2, d:{e:1, f:2}};"
+
+  val simpleStructAssignment =
+    Block(
+      Assignment(
+        Struct(Map[String, Expr]()),
+        Identifier("a")
+      )
+    )
+  val simpleStructAssignmentUnparsedString = "{\n  a = {b : 1, d : {e : 1, f : 2}, c : 2};\n}"
 
 }

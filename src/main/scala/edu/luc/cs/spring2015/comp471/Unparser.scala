@@ -10,6 +10,7 @@ object Semicolon extends SynthesizedAttributes
 
 class InheritedAttributes extends Attributes
 object Indent extends InheritedAttributes
+object StructAssign extends InheritedAttributes
 
 /**
  * Created by bruno on 3/25/15.
@@ -35,7 +36,10 @@ object Unparser {
   private def toUnparsedString(prefix: String)(e: Expr): String = e match {
     case Identifier(s)    => prefix + s
     case Constant(c)      => prefix + c.toString
-    case Assignment(r, l) => toUnparsedString(prefix)(l) + " = " + toUnparsedString("")(r)
+    case Assignment(r, l) => {
+      val sep = if (ia.contains(StructAssign)) " : " else " = "
+      toUnparsedString(prefix)(l) + sep + toUnparsedString("")(r)
+    }
     case UMinus(r)        => prefix + "-" + toUnparsedString("")(r)
     case Plus(l,r)        => buildUnparsedBinaryExpr(prefix, l, " + ", r)
     case Minus(l,r)       => buildUnparsedBinaryExpr(prefix, l, " - ", r)
@@ -87,7 +91,22 @@ object Unparser {
     }
     case Select(root, selectors @ _*) =>
       prefix + toUnparsedString("")(root) + "." + selectors.map((el: Identifier) => toUnparsedString("")(el)).mkString(".")
-    case Struct(m) => ""
+    case Struct(m) => {
+      val b = new StringBuilder()
+
+      b.append(prefix)
+      b.append("{")
+      val s = m.map {
+        case (k, v) => {
+          ia.add(StructAssign)
+          toUnparsedString("")(Assignment(v, Identifier(k)))
+        }
+      }.mkString(", ")
+      b.append(s)
+      b.append("}")
+      ia.remove(StructAssign)
+      b.toString
+    }
   }
 
   val EOL = scala.util.Properties.lineSeparator

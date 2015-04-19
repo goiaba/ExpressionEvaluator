@@ -1,10 +1,8 @@
-name := "expressions-scala"
+name := "cs372s15p3"
 
-version := "0.1"
+version := "1.0"
 
-scalaVersion := "2.11.6"
-
-scalacOptions ++= Seq("-deprecation", "-feature", "-unchecked")
+scalaVersion := "2.11.5"
 
 libraryDependencies ++= Seq(
   "org.parboiled" %% "parboiled" % "2.0.1",
@@ -13,3 +11,4 @@ libraryDependencies ++= Seq(
 )
 
 ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages := """.*Calculator.*"""
+

@@ -1,7 +1,8 @@
-package edu.luc.cs.laufer.cs473.expressions
+package edu.luc.cs.spring2015.comp471
 
 import jline.console.ConsoleReader
 import org.parboiled2.ParseError
+
 import scala.util.{Failure, Success}
 
 object Calculator extends App {
@@ -16,14 +17,14 @@ object Calculator extends App {
       case Failure(error) =>
         println("This statement could not be evaluated: " + error)
       case Success(statements) =>
-        import behaviors._
+        import edu.luc.cs.spring2015.comp471.behaviors._
         println("The parsed statements are: ")
         println(toFormattedString(statements))
         println("The unparsed statements are: ")
         println(Unparser.unparse(statements))
         print("It evaluates to ")
         println(Evaluator.evaluate(statements))
-        println("Memory: " + Evaluator.storeAsString)
+        println("Memory: " + Evaluator.memoryAsString)
     }
   }
 
@@ -33,7 +34,7 @@ object Calculator extends App {
   val console = new ConsoleReader()
   console.setPrompt("minic> ")
   println("Enter the expressions and press <enter> to parse your input (multiline expressions allowed inside blocks)")
-  println("Memory: " + Evaluator.storeAsString)
+  println("Memory: " + Evaluator.memoryAsString)
 
   if (args.length > 0) {
     processStatements(args mkString " ")

@@ -40,7 +40,7 @@ object Evaluator {
   /**
    * A cell for storing a value.
    */
-  case class Cell[T <: Value](var value: T) extends LValue[T] {
+  case class Cell[T](var value: T) extends LValue[T] {
     override def get = value
     override def set(value: T) = { this.value = value; this }
   }
@@ -142,16 +142,22 @@ object Evaluator {
     }
     case Loop(condExpr, block)                      => {
       var cvalue = evaluate(store)(condExpr)
-      while (!Cell.NULL.equals(cvalue)) {
+      WHILE(!Cell.NULL.equals(cvalue))({
         evaluate(store)(block)
         cvalue = evaluate(store)(condExpr)
-      }
-      Cell.NULL
+      })
     }
     case Block(exprs @ _*)                          =>
       exprs.foldLeft(Cell.NULL)((c: Cell[Value], s: Expr) => evaluate(store)(s))
   }
 
   private def getNumValue(v: Cell[Value]): Int = v.get.asInstanceOf[Num].value
+
+  private def WHILE(condition: => Boolean)(command: => Unit): Cell[Value] = {
+    if (condition) {
+      command
+      WHILE(condition)(command)
+    } else Cell.NULL
+  }
 
 }

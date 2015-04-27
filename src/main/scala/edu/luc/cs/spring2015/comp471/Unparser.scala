@@ -36,9 +36,9 @@ object Unparser {
   private def toUnparsedString(prefix: String)(e: Expr): String = e match {
     case Identifier(s)    => prefix + s
     case Constant(c)      => prefix + c.toString
-    case Assignment(r, l) => {
+    case Assignment(r, l @_*) => {
       val sep = if (ia.contains(StructAssign)) " : " else " = "
-      toUnparsedString(prefix)(l) + sep + toUnparsedString("")(r)
+      toUnparsedString(prefix)(Select(l.head, l.tail:_*)) + sep + toUnparsedString("")(r)
     }
     case UMinus(r)        => prefix + "-" + toUnparsedString("")(r)
     case Plus(l,r)        => buildUnparsedBinaryExpr(prefix, l, " + ", r)
@@ -90,7 +90,7 @@ object Unparser {
       sb.toString
     }
     case Select(root, selectors @ _*) =>
-      prefix + toUnparsedString("")(root) + "." + selectors.map((el: Identifier) => toUnparsedString("")(el)).mkString(".")
+      prefix + toUnparsedString("")(root) + selectors.foldLeft("")((out: String, el: Identifier) => out + "." + toUnparsedString("")(el))
     case Struct(m) => {
       val b = new StringBuilder()
 

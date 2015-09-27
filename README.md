@@ -1,4 +1,4 @@
-A simple expression evaluator in Scala using
+Description: A simple expression evaluator in Scala using
 [parboiled2](https://github.com/sirthias/parboiled2) for parsing.
 
 The goal is an understanding of:
